@@ -10,35 +10,38 @@
         body{ font-family: sans-serif; padding: 10px; background: #f4f4f4; max-width: 650px; margin: auto; }
         
         .formulaire{ 
-            background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; 
-            border: 1px solid #ddd; display: flex; gap: 8px; align-items: center;
+            background: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; 
+            border: 1px solid #ddd; display: flex; gap: 5px; align-items: center;
         }
-        input#nomInput{ flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; min-width: 0; }
-        input#qteInput{ width: 60px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; text-align: center; }
-        .btn-ajout{ background: #0288d1; color: white; border: none; font-weight: bold; padding: 12px 15px; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+        input#nomInput{ flex: 2; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; min-width: 0; }
+        input#qteInput{ width: 45px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; text-align: center; }
+        .btn-ajout{ background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px; border-radius: 4px; cursor: pointer; }
 
         .carte-objet{ 
-            background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; 
-            border-radius: 6px; display: flex; align-items: center; gap: 10px; min-height: 50px;
+            background: white; border: 1px solid #ddd; padding: 8px 10px; margin-bottom: 5px; 
+            border-radius: 6px; display: flex; align-items: center; justify-content: space-between;
+            height: 45px; /* On fixe la hauteur pour garder le côté compact */
         }
         
-        /* Modifié ici : le texte passe à la ligne au lieu de mettre des points de suspension */
         .nom-objet{ 
             font-weight: bold; color: #333; flex: 1; min-width: 0;
-            white-space: normal; /* Autorise le passage à la ligne */
-            word-wrap: break-word; /* Coupe les mots si vraiment trop longs */
-            line-height: 1.2;
-            font-size: 0.95em;
+            white-space: nowrap;
+            overflow-x: auto; /* Permet de "slider" le nom avec le doigt s'il est trop long */
+            scrollbar-width: none; /* Cache la barre de scroll sur Firefox */
+            font-size: 0.85em; /* Un poil plus petit pour en faire tenir plus */
+            margin-right: 8px;
         }
+        .nom-objet::-webkit-scrollbar { display: none; } /* Cache la barre de scroll sur Chrome/Safari */
 
-        .controles{ display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+        .controles{ display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
         
-        .badge{ background: #e1f5fe; padding: 8px 0; border-radius: 6px; font-weight: bold; color: #0288d1; min-width: 35px; text-align: center; }
+        .badge{ background: #e1f5fe; padding: 5px 0; border-radius: 6px; font-weight: bold; color: #0288d1; min-width: 32px; text-align: center; font-size: 0.9em; }
         
-        button{ cursor: pointer; padding: 10px 5px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 14px; min-width: 38px; }
+        /* Boutons plus étroits pour gagner de la place horizontale */
+        button{ cursor: pointer; padding: 8px 4px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 13px; min-width: 34px; }
         button:active{ background: #e0e0e0; }
 
-        .btn-poubelle{ border: none; background: none; font-size: 1.3em; cursor: pointer; padding: 5px; flex-shrink: 0; }
+        .btn-poubelle{ border: none; background: none; font-size: 1.1em; cursor: pointer; padding: 0; margin-left: 2px; flex-shrink: 0; }
     </style>
 </head>
 <body>
