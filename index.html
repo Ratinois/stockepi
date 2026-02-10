@@ -7,27 +7,35 @@
     <style>
         body{ font-family: sans-serif; padding: 10px; background: #f4f4f4; max-width: 650px; margin: auto; }
         
-        /* Formulaire adaptatif */
-        .formulaire{ background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; gap: 10px; }
-        input#nomInput{ flex: 3; min-width: 150px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-        input#qteInput{ flex: 1; min-width: 60px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-        .btn-ajout{ flex: 1; min-width: 100px; background: #0288d1; color: white; border: none; font-weight: bold; padding: 12px; border-radius: 4px; cursor: pointer; }
+        /* Formulaire : on force tout sur une ligne proprement */
+        .formulaire{ 
+            background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; 
+            border: 1px solid #ddd; display: flex; align-items: center; gap: 5px;
+        }
+        input#nomInput{ flex: 2; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; min-width: 0; }
+        input#qteInput{ width: 50px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; text-align: center; }
+        .btn-ajout{ background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px; border-radius: 4px; cursor: pointer; white-space: nowrap; }
 
-        /* Liste des objets */
-        .carte-objet{ background: white; border: 1px solid #ddd; padding: 12px; margin-bottom: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 10px; }
+        /* Liste : Alignement horizontal strict */
+        .carte-objet{ 
+            background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; 
+            border-radius: 6px; display: flex; align-items: center; justify-content: space-between;
+        }
         
-        /* Sur tablette/PC on remet en ligne, mais sur tel on empile pour la lisibilité */
-        @media (min-width: 480px){
-            .carte-objet{ flex-direction: row; justify-content: space-between; align-items: center; }
+        /* Le nom prend la place restante mais ne pousse pas les boutons */
+        .nom-objet{ 
+            font-weight: bold; color: #333; flex: 1; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* Coupe le texte s'il est trop long */
+            padding-right: 10px;
         }
 
-        .nom-objet{ font-weight: bold; color: #333; font-size: 1.1em; }
-        .badge{ background: #e1f5fe; padding: 8px 4px; border-radius: 6px; font-weight: bold; color: #0288d1; min-width: 40px; text-align: center; font-size: 1.1em; }
-        .controles{ display: flex; align-items: center; gap: 5px; justify-content: center; }
+        .controles{ display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
         
-        button{ cursor: pointer; padding: 12px 10px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 16px; touch-action: manipulation; }
+        .badge{ background: #e1f5fe; padding: 8px 2px; border-radius: 6px; font-weight: bold; color: #0288d1; min-width: 35px; text-align: center; }
+        
+        button{ cursor: pointer; padding: 10px 6px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 14px; }
         button:active{ background: #e0e0e0; }
-        .btn-poubelle{ border: none; background: none; font-size: 1.4em; margin-left: 10px; }
+        .btn-poubelle{ border: none; background: none; font-size: 1.2em; cursor: pointer; padding: 0 0 0 5px; }
     </style>
 </head>
 <body>
