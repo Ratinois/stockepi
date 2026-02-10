@@ -57,7 +57,7 @@
 
     <div class="formulaire">
         <input type="text" id="nomInput" placeholder="Nouvel article...">
-        <input type="number" id="qteInput" placeholder="Qté" style="width: 60px;">
+        <input type="number" id="qteInput" min="0" placeholder="Qté" style="width: 60px;">
         <button class="btn-ajout" onclick="CreerFourniture()">Ajouter</button>
     </div>
 
@@ -154,8 +154,8 @@
             const n = nomInput.value.trim();
             let q = parseInt(qteInput.value);
             
-            // Si le champ quantité est vide ou n'est pas un chiffre, on met 0
-            if (isNaN(q)){
+            // / Si vide/pas un chiffre OU si négatif -> on met 0
+            if (isNaN(q) || q < 0){
                 q = 0;
             }
             
