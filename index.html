@@ -19,29 +19,34 @@
 
         .carte-objet{ 
             background: white; border: 1px solid #ddd; 
-            padding: 5px 5px 5px 8px; /* Réduit à 5px sur les côtés pour gagner de la place */
+            padding: 5px 2px 5px 8px; /* Marges latérales minimales */
             margin-bottom: 4px; 
             border-radius: 6px; display: flex; align-items: center; justify-content: space-between;
             height: 45px; 
         }
         
         .nom-objet{ 
-            font-weight: bold; color: #333; flex: 1; min-width: 0;
+            /* C'est ICI que la magie opère pour gagner de la place */
+            font-weight: normal; /* On enlève le gras qui prend trop de place */
+            color: #222; /* Noir un peu plus doux */
+            flex: 1; min-width: 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 0.9em; /* Légère réduction mais reste très lisible */
-            margin-right: 3px; /* Espace minimum avec les boutons */
+            font-size: 15px; /* Taille standard lisible */
+            letter-spacing: -0.5px; /* On resserre très légèrement les lettres */
+            margin-right: 2px;
         }
 
-        .controles{ display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+        .controles{ display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
         
-        /* Tes boutons à la taille parfaite */
-        .badge{ background: #e1f5fe; padding: 8px 0; border-radius: 6px; font-weight: bold; color: #0288d1; min-width: 35px; text-align: center; font-size: 0.9em; }
-        button{ cursor: pointer; padding: 10px 6px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 14px; min-width: 38px; }
+        .badge{ background: #e1f5fe; padding: 8px 0; border-radius: 4px; font-weight: bold; color: #0288d1; min-width: 32px; text-align: center; font-size: 0.9em; }
+        
+        /* Tes boutons "taille parfaite" (ne pas toucher) */
+        button{ cursor: pointer; padding: 10px 0; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 14px; min-width: 32px; text-align: center; }
         button:active{ background: #e0e0e0; }
 
-        .btn-poubelle{ border: none; background: none; font-size: 1.2em; cursor: pointer; padding: 0; margin-left: 2px; flex-shrink: 0; }
+        .btn-poubelle{ border: none; background: none; font-size: 1.2em; cursor: pointer; padding: 0 5px; flex-shrink: 0; }
     </style>
 </head>
 <body>
