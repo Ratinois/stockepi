@@ -179,23 +179,29 @@
             });
         }
 
-        function RestaurerBDD(event){
+        async function RestaurerBDD(event){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
             const fichier = event.target.files[0];
             if (!fichier) return;
 
             const lecteur = new FileReader();
-            lecteur.onload = function(e){
+            lecteur.onload = async function(e){
                 try {
                     const contenu = JSON.parse(e.target.result);
-                    if (confirm("Attention : Cela va écraser les données actuelles par celles du fichier. Continuer ?")){
-                        // On remplace tout le dossier 'fournitures' par le contenu du fichier
-                        db.ref('fournitures').set(contenu)
-                            .then(() => alert("Restauration réussie !"))
-                            .catch((err) => alert("Erreur lors de la restauration : " + err.message));
+                    if (confirm("Restaurer les données ? (Les articles existants seront conservés ou mis à jour)")){
+                        const ref = db.ref('fournitures');
+                        
+                        // On boucle sur chaque article du fichier
+                        for (let id in contenu) {
+                            let article = contenu[id];
+                            // On s'assure que le secret est bien présent pour passer la sécurité
+                            article.secret = monSecret;
+                            await ref.child(id).set(article);
+                        }
+                        alert("Restauration terminée !");
                     }
                 } catch (err){
-                    alert("Erreur : Le fichier n'est pas un format JSON valide.");
+                    alert("Erreur de format JSON.");
                 }
             };
             lecteur.readAsText(fichier);
