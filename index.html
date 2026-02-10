@@ -5,18 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventaire Stock</title>
     <style>
-        body{ font-family: sans-serif; padding: 20px; background: #f4f4f4; max-width: 650px; margin: auto; }
-        .formulaire{ background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        body{ font-family: sans-serif; padding: 15px; background: #f4f4f4; max-width: 650px; margin: auto; }
+        .formulaire{ background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 5px; }
         .carte-objet{ background: white; border: 1px solid #ddd; padding: 12px; margin-bottom: 8px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; }
-        .nom-objet{ font-weight: bold; flex: 1; color: #333; }
-        .badge{ background: #e1f5fe; padding: 6px 12px; border-radius: 6px; font-weight: bold; color: #0288d1; margin: 0 10px; min-width: 30px; text-align: center; }
-        .controles{ display: flex; align-items: center; gap: 2px; }
-        button{ cursor: pointer; padding: 8px 10px; border: 1px solid #ccc; background: white; border-radius: 4px; transition: 0.2s; }
-        button:hover{ background: #f0f0f0; border-color: #999; }
-        input{ padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-right: 5px; }
-        .btn-ajout{ background: #0288d1; color: white; border: none; font-weight: bold; padding: 8px 15px; }
-        .btn-poubelle{ border: none; background: none; font-size: 1.2em; margin-left: 10px; filter: grayscale(1); }
-        .btn-poubelle:hover{ filter: grayscale(0); transform: scale(1.2); }
+        
+        /* On fixe une largeur pour le texte pour aligner les boutons */
+        .nom-objet{ font-weight: bold; flex: 1; color: #333; padding-right: 10px; min-width: 100px; line-height: 1.2; }
+        
+        .badge{ background: #e1f5fe; padding: 6px 4px; border-radius: 6px; font-weight: bold; color: #0288d1; min-width: 35px; text-align: center; }
+        .controles{ display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+        
+        /* Boutons un peu plus larges pour les gros doigts */
+        button{ cursor: pointer; padding: 10px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 0.9em; }
+        button:active{ background: #e0e0e0; }
+        
+        input#nomInput{ flex: 2; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        input#qteInput{ flex: 1; max-width: 60px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        .btn-ajout{ background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px 15px; }
+        .btn-poubelle{ border: none; background: none; font-size: 1.2em; padding: 5px; margin-left: 5px; }
     </style>
 </head>
 <body>
