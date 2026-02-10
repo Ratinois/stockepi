@@ -188,13 +188,10 @@
             lecteur.onload = async function(e){
                 try {
                     const contenu = JSON.parse(e.target.result);
-                    if (confirm("Restaurer les données ? (Les articles existants seront conservés ou mis à jour)")){
+                    if (confirm("Restaurer les données ?")){
                         const ref = db.ref('fournitures');
-                        
-                        // On boucle sur chaque article du fichier
                         for (let id in contenu) {
                             let article = contenu[id];
-                            // On s'assure que le secret est bien présent pour passer la sécurité
                             article.secret = monSecret;
                             await ref.child(id).set(article);
                         }
@@ -203,6 +200,9 @@
                 } catch (err){
                     alert("Erreur de format JSON.");
                 }
+                // --- AJOUTE CETTE LIGNE ICI ---
+                event.target.value = ""; // Réinitialise le sélecteur
+                // ------------------------------
             };
             lecteur.readAsText(fichier);
         }
