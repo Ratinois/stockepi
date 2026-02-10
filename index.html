@@ -151,17 +151,23 @@
             const qteInput = document.getElementById('qteInput');
             
             const n = nomInput.value.trim();
-            // On tente de parser, si ça échoue (vide ou texte), on met 0
             let q = parseInt(qteInput.value);
+            
+            // Si le champ quantité est vide ou n'est pas un chiffre, on met 0
             if (isNaN(q)){
                 q = 0;
             }
             
             if (n != ""){
                 db.ref('fournitures').push({ n: n, q: q, secret: monSecret });
+                
+                // On vide les champs
                 nomInput.value = "";
                 qteInput.value = "";
-                nomInput.focus(); // Petit bonus pour enchaîner les saisies
+                
+                // On force la fermeture du clavier sur mobile
+                nomInput.blur();
+                qteInput.blur();
             } else {
                 alert("Veuillez entrer un nom de fourniture.");
             }
