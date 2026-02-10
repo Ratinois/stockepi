@@ -100,10 +100,11 @@
                 const n = nom.toLowerCase();
                 if (n.includes("assiette")) return "🍽️ ";
                 if (n.includes("drap") || n.includes("housse") || n.includes("linge") || n.includes("serviette")) return "🧺 ";
-                if (n.includes("verre")) return "🥛 ";
+                if (n.includes("verre") || n.includes("gobelet")) return "🥛 ";
                 if (n.includes("couvert") || n.includes("fourchette") || n.includes("couteau")) return "🍴 ";
                 if (n.includes("savon") || n.includes("douche") || n.includes("shampoing")) return "🧼 ";
                 if (n.includes("papier") || n.includes("toilette") || n.includes("sopalin")) return "🧻 ";
+                if (n.includes("tasse")) return "☕ ";
                 return "📦 "; // Emoji par défaut si rien ne correspond
             };
 
