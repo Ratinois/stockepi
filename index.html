@@ -213,7 +213,6 @@
             });
         }
 
-        // public
         async function RestaurerBDD(event){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
             const fichier = event.target.files[0];
@@ -223,27 +222,32 @@
             lecteur.onload = async function(e){
                 try {
                     const contenu = JSON.parse(e.target.result);
-                    if (confirm("Restaurer les données ? (Cela supprimera les articles non présents dans le fichier)")){
+                    if (confirm("Restaurer les données ?")){
                         const ref = db.ref('fournitures');
-
-                        // --- ÉTAPE 1 : Nettoyage ---
-                        // On récupère tout ce qui est en ligne actuellement
+                        
+                        // 1. On récupère l'état actuel pour savoir quoi supprimer
                         const snapshot = await ref.once('value');
-                        const dataEnLigne = snapshot.val();
+                        const dataEnLigne = snapshot.val() || {};
+                        
+                        // 2. On prépare un seul objet de mise à jour (le "batch")
+                        let updates = {};
 
-                        if (dataEnLigne){
-                            // On supprime chaque article présent en ligne un par un
-                            for (let idActuel in dataEnLigne){
-                                await ref.child(idActuel).remove();
-                            }
+                        // On met à "null" tout ce qui existe actuellement (pour supprimer)
+                        for (let idActuel in dataEnLigne){
+                            updates[idActuel] = null;
                         }
 
-                        // --- ÉTAPE 2 : Importation ---
+                        // On ajoute les nouvelles données du fichier
                         for (let id in contenu){
                             let article = contenu[id];
                             article.secret = monSecret;
-                            await ref.child(id).set(article);
+                            updates[id] = article;
                         }
+
+                        // 3. On envoie tout d'un seul coup
+                        // Firebase va traiter ça comme une seule transaction atomique
+                        await ref.update(updates);
+                        
                         alert("Restauration terminée !");
                     }
                 } catch (err){
