@@ -36,10 +36,12 @@
             margin-right: 2px;
         }
         
-        /* C'est ici que ça se joue : si on applique cette classe, la police réduit */
-        .nom-objet.petite-police {
-            font-size: 15px; 
-            letter-spacing: -0.5px;
+        /* On n'applique la réduction que si l'écran est petit (max 500px) */
+        @media (max-width: 500px) {
+            .nom-objet.petite-police {
+                font-size: 15px; /* Un peu plus petit pour compenser l'emoji */
+                letter-spacing: -0.5px;
+            }
         }
 
         .controles{ display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
