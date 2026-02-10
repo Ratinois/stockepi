@@ -112,11 +112,11 @@
                 div.innerHTML = `
                     <div class="nom-objet ${classeTaille}">${f.n}</div>
                     <div class="controles">
-                        <button onclick="ChangerQuantite('${f.id}', -10)">-10</button>
+                        <button onclick="ChangerQuantite('${f.id}', -5)">-5</button>
                         <button onclick="ChangerQuantite('${f.id}', -1)">-1</button>
                         <span class="badge">${f.q}</span>
                         <button onclick="ChangerQuantite('${f.id}', 1)">+1</button>
-                        <button onclick="ChangerQuantite('${f.id}', 10)">+10</button>
+                        <button onclick="ChangerQuantite('${f.id}', 5)">+5</button>
                         <button class="btn-poubelle" onclick="SupprimerFourniture('${f.id}', '${f.n}')">🗑️</button>
                     </div>
                 `;
