@@ -147,13 +147,23 @@
 
         function CreerFourniture(){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
-            const n = document.getElementById('nomInput').value;
-            const q = parseInt(document.getElementById('qteInput').value);
+            const nomInput = document.getElementById('nomInput');
+            const qteInput = document.getElementById('qteInput');
             
-            if (n != "" && !isNaN(q)){
+            const n = nomInput.value.trim();
+            // On tente de parser, si ça échoue (vide ou texte), on met 0
+            let q = parseInt(qteInput.value);
+            if (isNaN(q)){
+                q = 0;
+            }
+            
+            if (n != ""){
                 db.ref('fournitures').push({ n: n, q: q, secret: monSecret });
-                document.getElementById('nomInput').value = "";
-                document.getElementById('qteInput').value = "";
+                nomInput.value = "";
+                qteInput.value = "";
+                nomInput.focus(); // Petit bonus pour enchaîner les saisies
+            } else {
+                alert("Veuillez entrer un nom de fourniture.");
             }
         }
 
