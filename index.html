@@ -163,7 +163,33 @@
             }
         }
 
+        // public
+        function SauvegarderBDD(){
+            if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
+            
+            db.ref('fournitures').once('value').then((snap) => {
+                const data = snap.val();
+                if (!data){ alert("Le stock est vide, rien à sauvegarder."); return; }
+
+                const contenu = JSON.stringify(data, null, 2);
+                const blob = new Blob([contenu], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const date = new Date().toISOString().split('T')[0];
+                const lien = document.createElement('a');
+                lien.href = url;
+                lien.download = "stock_backup_" + date + ".json";
+                lien.click();
+                
+                // Nettoyage
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            });
+        }
+
         EcouterStock();
     </script>
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="#" onclick="SauvegarderBDD()" style="color: #bbb; font-size: 11px; text-decoration: none;">📥 Sauvegarder les données (JSON)</a>
+    </div>
 </body>
 </html>
