@@ -85,12 +85,25 @@
         let monSecret = localStorage.getItem('secret_stock') || "";
         // ---------------------------------
 
+        // public
         function AfficherInterface (data){
             const conteneur = document.getElementById('liste-fournitures');
             if (!data){
                 conteneur.innerHTML = "<i>Le stock est vide.</i>";
                 return;
             }
+
+            // Fonction pour trouver l'emoji selon le nom
+            const getEmoji = (nom) => {
+                const n = nom.toLowerCase();
+                if (n.includes("assiette")) return "🍽️ ";
+                if (n.includes("drap") || n.includes("housse") || n.includes("linge") || n.includes("serviette")) return "🧺 ";
+                if (n.includes("verre")) return "🍷 ";
+                if (n.includes("couvert") || n.includes("fourchette") || n.includes("couteau")) return "🍴 ";
+                if (n.includes("savon") || n.includes("douche") || n.includes("shampoing")) return "🧼 ";
+                if (n.includes("papier") || n.includes("toilette") || n.includes("sopalin")) return "🧻 ";
+                return "📦 "; // Emoji par défaut si rien ne correspond
+            };
 
             const tableauTrie = Object.keys(data).map(id => ({
                 id: id,
@@ -104,11 +117,13 @@
                 const div = document.createElement('div');
                 div.className = "carte-objet";
                 
-                // On vérifie si le nom est long pour réduire la police
+                // On vérifie la longueur (on compte l'emoji dedans ou pas selon ton goût)
+                // Ici on garde 15, l'emoji est ajouté juste au moment du texte
                 let classeTaille = (f.n.length > 15) ? "petite-police" : "";
+                let emoji = getEmoji(f.n);
 
                 div.innerHTML = `
-                    <div class="nom-objet ${classeTaille}">${f.n}</div>
+                    <div class="nom-objet ${classeTaille}">${emoji}${f.n}</div>
                     <div class="controles">
                         <button onclick="ChangerQuantite('${f.id}', -5)">-5</button>
                         <button onclick="ChangerQuantite('${f.id}', -1)">-1</button>
