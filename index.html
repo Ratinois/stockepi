@@ -85,8 +85,6 @@
         let monSecret = localStorage.getItem('secret_stock') || "";
         // ---------------------------------
 
-        // public
-        // public
         function AfficherInterface (data){
             const conteneur = document.getElementById('liste-fournitures');
             if (!data){
@@ -124,14 +122,12 @@
             });
         }
 
-        // public
         function EcouterStock(){
             db.ref('fournitures').on('value', (snap) => {
                 AfficherInterface(snap.val());
             });
         }
 
-        // public
         function CreerFourniture(){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
             const n = document.getElementById('nomInput').value;
@@ -144,7 +140,6 @@
             }
         }
 
-        // public
         function ChangerQuantite (id, delta){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
             const ref = db.ref('fournitures/' + id);
@@ -155,7 +150,6 @@
             });
         }
 
-        // public
         function SupprimerFourniture (id, nom){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
             if (confirm("Supprimer définitivement '" + nom + "' ?")){
@@ -163,7 +157,6 @@
             }
         }
 
-        // public
         function SauvegarderBDD(){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
             
@@ -186,10 +179,35 @@
             });
         }
 
+        function RestaurerBDD(event){
+            if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
+            const fichier = event.target.files[0];
+            if (!fichier) return;
+
+            const lecteur = new FileReader();
+            lecteur.onload = function(e){
+                try {
+                    const contenu = JSON.parse(e.target.result);
+                    if (confirm("Attention : Cela va écraser les données actuelles par celles du fichier. Continuer ?")){
+                        // On remplace tout le dossier 'fournitures' par le contenu du fichier
+                        db.ref('fournitures').set(contenu)
+                            .then(() => alert("Restauration réussie !"))
+                            .catch((err) => alert("Erreur lors de la restauration : " + err.message));
+                    }
+                } catch (err){
+                    alert("Erreur : Le fichier n'est pas un format JSON valide.");
+                }
+            };
+            lecteur.readAsText(fichier);
+        }
+
         EcouterStock();
     </script>
-    <div style="text-align: center; margin-top: 20px;">
-        <a href="#" onclick="SauvegarderBDD()" style="color: #bbb; font-size: 11px; text-decoration: none;">📥 Sauvegarder les données (JSON)</a>
+    <div style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
+        <a href="#" onclick="SauvegarderBDD()" style="color: #bbb; font-size: 11px; text-decoration: none; margin: 0 10px;">📥 Sauvegarder</a>
+        <label for="importFile" style="color: #bbb; font-size: 11px; cursor: pointer; text-decoration: none; margin: 0 10px;">📤 Restaurer
+            <input type="file" id="importFile" accept=".json" onchange="RestaurerBDD(event)" style="display: none;">
+        </label>
     </div>
 </body>
 </html>
