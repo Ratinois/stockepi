@@ -19,33 +19,33 @@
 
         .carte-objet{ 
             background: white; border: 1px solid #ddd; 
-            padding: 5px 2px 5px 8px; /* Marges latérales minimales */
+            padding: 5px 2px 5px 8px; 
             margin-bottom: 4px; 
             border-radius: 6px; display: flex; align-items: center; justify-content: space-between;
             height: 45px; 
         }
         
         .nom-objet{ 
-            /* C'est ICI que la magie opère pour gagner de la place */
-            font-weight: normal; /* On enlève le gras qui prend trop de place */
-            color: #222; /* Noir un peu plus doux */
+            font-weight: bold; /* LE GRAS EST DE RETOUR */
+            color: #333; 
             flex: 1; min-width: 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 15px; /* Taille standard lisible */
-            letter-spacing: -0.5px; /* On resserre très légèrement les lettres */
+            font-size: 16px; /* Taille normale pour les noms courts */
             margin-right: 2px;
+        }
+        
+        /* C'est ici que ça se joue : si on applique cette classe, la police réduit */
+        .nom-objet.petite-police {
+            font-size: 13px; 
+            letter-spacing: -0.5px;
         }
 
         .controles{ display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
-        
         .badge{ background: #e1f5fe; padding: 8px 0; border-radius: 4px; font-weight: bold; color: #0288d1; min-width: 32px; text-align: center; font-size: 0.9em; }
-        
-        /* Tes boutons "taille parfaite" (ne pas toucher) */
         button{ cursor: pointer; padding: 10px 0; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 14px; min-width: 32px; text-align: center; }
         button:active{ background: #e0e0e0; }
-
         .btn-poubelle{ border: none; background: none; font-size: 1.2em; cursor: pointer; padding: 0 5px; flex-shrink: 0; }
     </style>
 </head>
@@ -86,6 +86,7 @@
         // ---------------------------------
 
         // public
+        // public
         function AfficherInterface (data){
             const conteneur = document.getElementById('liste-fournitures');
             if (!data){
@@ -104,8 +105,12 @@
             tableauTrie.forEach((f) => {
                 const div = document.createElement('div');
                 div.className = "carte-objet";
+                
+                // On vérifie si le nom est long pour réduire la police
+                let classeTaille = (f.n.length > 15) ? "petite-police" : "";
+
                 div.innerHTML = `
-                    <div class="nom-objet">${f.n}</div>
+                    <div class="nom-objet ${classeTaille}">${f.n}</div>
                     <div class="controles">
                         <button onclick="ChangerQuantite('${f.id}', -10)">-10</button>
                         <button onclick="ChangerQuantite('${f.id}', -1)">-1</button>
