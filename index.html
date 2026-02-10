@@ -213,6 +213,7 @@
             });
         }
 
+        // public
         async function RestaurerBDD(event){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
             const fichier = event.target.files[0];
@@ -222,9 +223,23 @@
             lecteur.onload = async function(e){
                 try {
                     const contenu = JSON.parse(e.target.result);
-                    if (confirm("Restaurer les données ?")){
+                    if (confirm("Restaurer les données ? (Cela supprimera les articles non présents dans le fichier)")){
                         const ref = db.ref('fournitures');
-                        for (let id in contenu) {
+
+                        // --- ÉTAPE 1 : Nettoyage ---
+                        // On récupère tout ce qui est en ligne actuellement
+                        const snapshot = await ref.once('value');
+                        const dataEnLigne = snapshot.val();
+
+                        if (dataEnLigne){
+                            // On supprime chaque article présent en ligne un par un
+                            for (let idActuel in dataEnLigne){
+                                await ref.child(idActuel).remove();
+                            }
+                        }
+
+                        // --- ÉTAPE 2 : Importation ---
+                        for (let id in contenu){
                             let article = contenu[id];
                             article.secret = monSecret;
                             await ref.child(id).set(article);
@@ -234,9 +249,7 @@
                 } catch (err){
                     alert("Erreur de format JSON.");
                 }
-                // --- AJOUTE CETTE LIGNE ICI ---
-                event.target.value = ""; // Réinitialise le sélecteur
-                // ------------------------------
+                event.target.value = ""; 
             };
             lecteur.readAsText(fichier);
         }
