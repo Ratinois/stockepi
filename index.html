@@ -42,9 +42,9 @@
             .champ-groupe label { display: none; }
             
             /* Proportions pour le mode compact */
-            .cg-nom { flex: 3 !important; }
-            .cg-cat { flex: 0.8 !important; } /* Largeur juste pour l'emoji */
-            .cg-num { flex: 0.7 !important; }
+            .cg-nom { flex: 1.5 !important; }
+            .cg-cat { flex: 0.5 !important; } /* Largeur juste pour l'emoji */
+            .cg-num { flex: 0.5 !important; }
             .cg-btn { flex: 0.6 !important; }
             
             input#nomInput, select#catInput, .input-nombre { min-width: 0; }
@@ -152,9 +152,9 @@
             if (!data) return;
             const getEmoji = (nom) => {
                 const n = nom.toLowerCase();
-                if (n.includes("assiette") || n.includes("verre")) return "🍽️ ";
-                if (n.includes("drap") || n.includes("linge")) return "🧺 ";
-                if (n.includes("meuble")) return "🗄️ ";
+                if (n.includes("assiette") || n.includes("verre") || n.includes("couvert") || n.includes("gobelet") || n.includes("tasse") || n.includes("fourchette")) return "🍽️ ";
+                if (n.includes("drap") || n.includes("housse") || n.includes("linge") || n.includes("serviette") || n.includes("taie")) return "🧺 ";
+                if (n.includes("meuble") || n.includes("chaise") || n.includes("table")) return "🗄️ ";
                 return "📦 ";
             };
             const tableauTrie = Object.keys(data).map(id => ({ id: id, ...data[id] }));
