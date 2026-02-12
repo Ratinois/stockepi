@@ -8,47 +8,27 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
     <style>
         body{ font-family: sans-serif; padding: 5px; background: #f4f4f4; max-width: 650px; margin: auto; }
-        
-        .formulaire{ 
-            background: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; 
-            border: 1px solid #ddd; display: flex; gap: 5px; align-items: center;
-        }
-        input#nomInput{ flex: 2; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; min-width: 0; }
-        input#qteInput{ width: 45px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; text-align: center; }
-        .btn-ajout{ background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px; border-radius: 4px; cursor: pointer; }
-
-        .carte-objet{ 
-            background: white; border: 1px solid #ddd; 
-            padding: 5px 2px 5px 8px; 
-            margin-bottom: 4px; 
-            border-radius: 6px; display: flex; align-items: center; justify-content: space-between;
-            height: 45px; 
-        }
-        
-        .nom-objet{ 
-            font-weight: bold; /* LE GRAS EST DE RETOUR */
-            color: #333; 
-            flex: 1; min-width: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 16px; /* Taille normale pour les noms courts */
-            margin-right: 2px;
-        }
-        
-        /* On n'applique la réduction que si l'écran est petit (max 500px) */
+        .formulaire{ background: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd; display: flex; gap: 8px; align-items: flex-end; }
+        .champ-groupe { display: flex; flex-direction: column; gap: 2px; }
+        .champ-groupe label { font-size: 11px; color: #666; font-weight: bold; margin-left: 2px; }
+        input#nomInput{ flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; min-width: 0; }
+        .input-nombre{ width: 50px; padding: 10px 2px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; text-align: center; }
+        select#catInput { padding: 9px; border-radius: 4px; border: 1px solid #ccc; background: white; height: 40px; }
+        .btn-ajout{ background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px 15px; border-radius: 4px; cursor: pointer; height: 40px; }
+        .carte-objet{ background: white; border: 1px solid #ddd; padding: 5px 2px 5px 8px; margin-bottom: 4px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; height: 45px; }
+        .nom-objet{ font-weight: bold; color: #333; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 16px; margin-right: 2px; }
+        .alerte-icone { color: #e53935; margin-left: 5px; font-size: 14px; }
         @media (max-width: 500px) {
-            .nom-objet.petite-police {
-                font-size: 15px; /* Un peu plus petit pour compenser l'emoji */
-                letter-spacing: -0.5px;
-            }
+            .nom-objet.petite-police { font-size: 15px; letter-spacing: -0.5px; }
+            .formulaire { flex-wrap: wrap; }
+            input#nomInput { flex: 1 1 100%; }
         }
-
         .controles{ display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
         .badge{ background: #e1f5fe; padding: 8px 0; border-radius: 4px; font-weight: bold; color: #0288d1; min-width: 32px; text-align: center; font-size: 0.9em; }
         button{ cursor: pointer; padding: 10px 0; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 14px; min-width: 32px; text-align: center; }
         button:active{ background: #e0e0e0; }
         .btn-poubelle{ border: none; background: none; font-size: 1.2em; cursor: pointer; padding: 0 5px; flex-shrink: 0; }
+        .filtre-actif { background: #0288d1 !important; color: white !important; border-color: #0288d1 !important; }
     </style>
 </head>
 <body>
@@ -56,9 +36,36 @@
     <h2>📦 Gestion de Stock Epicerie</h2>
 
     <div class="formulaire">
-        <input type="text" id="nomInput" placeholder="Nouvel article...">
-        <input type="number" id="qteInput" min="0" placeholder="Qté" style="width: 60px;">
+        <div class="champ-groupe" style="flex: 2;">
+            <label>Article</label>
+            <input type="text" id="nomInput" placeholder="Nom...">
+        </div>
+        <div class="champ-groupe">
+            <label>Cat.</label>
+            <select id="catInput">
+                <option value="Vaisselle">🍽️ Vaisselle</option>
+                <option value="Linge">🧺 Linge</option>
+                <option value="Meuble">🗄️ Meuble</option>
+                <option value="Divers" selected>📦 Divers</option>
+            </select>
+        </div>
+        <div class="champ-groupe">
+            <label>Qté</label>
+            <input type="number" id="qteInput" class="input-nombre" min="0" value="0">
+        </div>
+        <div class="champ-groupe">
+            <label>Min</label>
+            <input type="number" id="seuilInput" class="input-nombre" min="0" value="0">
+        </div>
         <button class="btn-ajout" onclick="CreerFourniture()">Ajouter</button>
+    </div>
+
+    <div style="margin-bottom: 10px; display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
+        <button onclick="ChangerFiltre('Tous')" class="filtre-actif" style="flex:1">Tous</button>
+        <button onclick="ChangerFiltre('Vaisselle')" style="flex:1">🍽️ Vaisselle</button>
+        <button onclick="ChangerFiltre('Linge')" style="flex:1">🧺 Linge</button>
+        <button onclick="ChangerFiltre('Meuble')" style="flex:1">🗄️ Meubles</button>
+        <button onclick="ChangerFiltre('Divers')" style="flex:1">📦 Divers</button>
     </div>
 
     <div id="liste-fournitures">Connexion au stock...</div>
@@ -73,11 +80,11 @@
             projectId: "inventaire-stock-5fe28",
             appId: "1:984675783814:web:c4479fd570b76992f0ed07"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        let dernieresDonneesRecues = null;
+        let filtreActuel = "Tous";
 
-        // --- GESTION DU SECRET VIA URL ---
         const params = new URLSearchParams(window.location.search);
         const codeUrl = params.get('code');
         if (codeUrl){
@@ -85,48 +92,55 @@
             window.history.replaceState({}, document.title, window.location.pathname);
         }
         let monSecret = localStorage.getItem('secret_stock') || "";
-        // ---------------------------------
 
-        // public
+        function AttribuerCategorieAuto (nom, catExistante){
+            if (catExistante && catExistante !== "Divers") return catExistante;
+            const n = nom.toLowerCase();
+            if (n.includes("assiette") || n.includes("verre") || n.includes("couvert") || n.includes("gobelet") || n.includes("tasse") || n.includes("fourchette")) return "Vaisselle";
+            if (n.includes("drap") || n.includes("housse") || n.includes("linge") || n.includes("serviette") || n.includes("taie")) return "Linge";
+            if (n.includes("meuble") || n.includes("chaise") || n.includes("table")) return "Meuble";
+            return "Divers";
+        }
+
         function AfficherInterface (data){
             const conteneur = document.getElementById('liste-fournitures');
             if (!data){
                 conteneur.innerHTML = "<i>Le stock est vide.</i>";
                 return;
             }
-
-            // Fonction pour trouver l'emoji selon le nom
             const getEmoji = (nom) => {
                 const n = nom.toLowerCase();
-                if (n.includes("assiette")) return "🍽️ ";
-                if (n.includes("drap") || n.includes("housse") || n.includes("linge") || n.includes("serviette")) return "🧺 ";
-                if (n.includes("verre") || n.includes("gobelet")) return "🥛 ";
-                if (n.includes("couvert") || n.includes("fourchette") || n.includes("couteau")) return "🍴 ";
-                if (n.includes("savon") || n.includes("douche") || n.includes("shampoing")) return "🧼 ";
-                if (n.includes("papier") || n.includes("toilette") || n.includes("sopalin")) return "🧻 ";
-                if (n.includes("tasse")) return "☕ ";
-                return "📦 "; // Emoji par défaut si rien ne correspond
+                if (n.includes("assiette") || n.includes("verre") || n.includes("gobelet") || n.includes("tasse")) return "🍽️ ";
+                if (n.includes("drap") || n.includes("housse") || n.includes("linge")) return "🧺 ";
+                if (n.includes("meuble")) return "🗄️ ";
+                return "📦 ";
             };
-
-            const tableauTrie = Object.keys(data).map(id => ({
-                id: id,
-                ...data[id]
-            }));
-
+            const tableauTrie = Object.keys(data).map(id => ({ id: id, ...data[id] }));
             tableauTrie.sort((a, b) => a.n.localeCompare(b.n));
-
             conteneur.innerHTML = "";
             tableauTrie.forEach((f) => {
+                const catReelle = AttribuerCategorieAuto(f.n, f.c);
+                if (filtreActuel !== "Tous" && catReelle !== filtreActuel) return;
+
+                const seuilVrai = f.s || 0;
+                const estEnAlerte = (seuilVrai > 0 && f.q < seuilVrai); // Ta modification appliquée ici
+
                 const div = document.createElement('div');
                 div.className = "carte-objet";
-                
-                // On vérifie la longueur (on compte l'emoji dedans ou pas selon ton goût)
-                // Ici on garde 15, l'emoji est ajouté juste au moment du texte
+                if (estEnAlerte){
+                    div.style.background = "#ffebee";
+                    div.style.borderColor = "#ef9a9a";
+                }
                 let classeTaille = (f.n.length > 15) ? "petite-police" : "";
-                let emoji = getEmoji(f.n);
+                const iconeAlerte = estEnAlerte ? `<span class="alerte-icone">⚠️</span>` : "";
 
                 div.innerHTML = `
-                    <div class="nom-objet ${classeTaille}">${emoji}${f.n}</div>
+                    <div class="nom-objet ${classeTaille}">
+                        <span onclick="ModifierSeuil('${f.id}', ${seuilVrai})" style="cursor:help">
+                            ${getEmoji(f.n)}${f.n}
+                        </span>
+                        ${iconeAlerte}
+                    </div>
                     <div class="controles">
                         <button onclick="ChangerQuantite('${f.id}', -5)">-5</button>
                         <button onclick="ChangerQuantite('${f.id}', -1)">-1</button>
@@ -140,38 +154,21 @@
             });
         }
 
-        function EcouterStock(){
-            db.ref('fournitures').on('value', (snap) => {
-                AfficherInterface(snap.val());
-            });
-        }
-
-        function CreerFourniture(){
+        function CreerFourniture (){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
             const nomInput = document.getElementById('nomInput');
             const qteInput = document.getElementById('qteInput');
-            
+            const seuilInput = document.getElementById('seuilInput');
+            const catInput = document.getElementById('catInput');
             const n = nomInput.value.trim();
-            let q = parseInt(qteInput.value);
-            
-            // / Si vide/pas un chiffre OU si négatif -> on met 0
-            if (isNaN(q) || q < 0){
-                q = 0;
-            }
-            
+            const c = catInput.value;
+            let q = parseInt(qteInput.value) || 0;
+            let s = parseInt(seuilInput.value) || 0;
             if (n != ""){
-                db.ref('fournitures').push({ n: n, q: q, secret: monSecret });
-                
-                // On vide les champs
-                nomInput.value = "";
-                qteInput.value = "";
-                
-                // On force la fermeture du clavier sur mobile
+                db.ref('fournitures').push({ n: n, q: q, s: s, c: c, secret: monSecret });
+                nomInput.value = ""; qteInput.value = "0"; seuilInput.value = "0";
                 nomInput.blur();
-                qteInput.blur();
-            } else {
-                alert("Veuillez entrer un nom de fourniture.");
-            }
+            } else { alert("Nom obligatoire."); }
         }
 
         function ChangerQuantite (id, delta){
@@ -184,82 +181,73 @@
             });
         }
 
-        function SupprimerFourniture (id, nom){
-            if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
-            if (confirm("Supprimer définitivement '" + nom + "' ?")){
-                db.ref('fournitures/' + id).remove();
+        function ModifierSeuil (id, actuelSeuil){
+            const nouveauSeuil = prompt("Nouveau seuil d'alerte :", actuelSeuil);
+            if (nouveauSeuil != null){
+                const s = parseInt(nouveauSeuil);
+                if (!isNaN(s) && s >= 0) db.ref('fournitures/' + id).update({ s: s });
             }
         }
 
-        function SauvegarderBDD(){
+        function SupprimerFourniture (id, nom){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
-            
-            db.ref('fournitures').once('value').then((snap) => {
-                const data = snap.val();
-                if (!data){ alert("Le stock est vide, rien à sauvegarder."); return; }
+            if (confirm("Supprimer '" + nom + "' ?")) db.ref('fournitures/' + id).remove();
+        }
 
-                const contenu = JSON.stringify(data, null, 2);
-                const blob = new Blob([contenu], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const date = new Date().toISOString().split('T')[0];
-                const lien = document.createElement('a');
-                lien.href = url;
-                lien.download = "stock_backup_" + date + ".json";
-                lien.click();
-                
-                // Nettoyage
-                setTimeout(() => URL.revokeObjectURL(url), 100);
+        function ChangerFiltre (nouvelleCategorie){
+            filtreActuel = nouvelleCategorie;
+            document.querySelectorAll('[onclick^="ChangerFiltre"]').forEach(btn => {
+                if (btn.innerText.includes(nouvelleCategorie)) btn.classList.add('filtre-actif');
+                else btn.classList.remove('filtre-actif');
+            });
+            AfficherInterface(dernieresDonneesRecues);
+        }
+
+        function EcouterStock (){
+            db.ref('fournitures').on('value', (snap) => {
+                dernieresDonneesRecues = snap.val();
+                AfficherInterface(dernieresDonneesRecues);
             });
         }
 
-        async function RestaurerBDD(event){
+        function SauvegarderBDD (){
+            db.ref('fournitures').once('value').then((snap) => {
+                const data = snap.val();
+                if (!data) return;
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const lien = document.createElement('a');
+                lien.href = url; lien.download = "stock_backup.json"; lien.click();
+            });
+        }
+
+        async function RestaurerBDD (event){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
             const fichier = event.target.files[0];
             if (!fichier) return;
-
             const lecteur = new FileReader();
             lecteur.onload = async function(e){
                 try {
                     const contenu = JSON.parse(e.target.result);
-                    if (confirm("Restaurer les données ?")){
+                    if (confirm("Restaurer ?")){
                         const ref = db.ref('fournitures');
-                        
-                        // 1. On récupère l'état actuel pour savoir quoi supprimer
-                        const snapshot = await ref.once('value');
-                        const dataEnLigne = snapshot.val() || {};
-                        
-                        // 2. On prépare un seul objet de mise à jour (le "batch")
                         let updates = {};
-
-                        // On met à "null" tout ce qui existe actuellement (pour supprimer)
-                        for (let idActuel in dataEnLigne){
-                            updates[idActuel] = null;
-                        }
-
-                        // On ajoute les nouvelles données du fichier
                         for (let id in contenu){
                             let article = contenu[id];
                             article.secret = monSecret;
                             updates[id] = article;
                         }
-
-                        // 3. On envoie tout d'un seul coup
-                        // Firebase va traiter ça comme une seule transaction atomique
-                        await ref.update(updates);
-                        
-                        alert("Restauration terminée !");
+                        await ref.set(updates);
+                        alert("Fait !");
                     }
-                } catch (err){
-                    alert("Erreur de format JSON.");
-                }
-                event.target.value = ""; 
+                } catch (err){ alert("Erreur JSON."); }
             };
             lecteur.readAsText(fichier);
         }
 
         EcouterStock();
     </script>
+    
     <div style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
         <a href="#" onclick="SauvegarderBDD()" style="color: #bbb; font-size: 11px; text-decoration: none; margin: 0 10px;">📥 Sauvegarder</a>
         <label for="importFile" style="color: #bbb; font-size: 11px; cursor: pointer; text-decoration: none; margin: 0 10px;">📤 Restaurer
