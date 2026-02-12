@@ -17,16 +17,15 @@
         .champ-groupe { display: flex; flex-direction: column; gap: 2px; }
         .champ-groupe label { font-size: 11px; color: #666; font-weight: bold; margin-left: 2px; }
         
-        /* Tes nouvelles proportions */
-        .cg-nom { flex: 1.5; } 
-        .cg-cat { flex: 1.5; }
-        .cg-num { flex: 0.5; }
-        .cg-btn { flex: 1; }
+        .cg-nom { flex: 1.5 !important; } 
+        .cg-cat { flex: 1.2 !important; }
+        .cg-num { flex: 0.5 !important; }
+        .cg-btn { flex: 0.6 !important; }
 
         input#nomInput{ width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
         .input-nombre{ width: 100%; padding: 10px 2px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; text-align: center; box-sizing: border-box; }
         select#catInput { width: 100%; padding: 9px; border-radius: 4px; border: 1px solid #ccc; background: white; height: 40px; box-sizing: border-box; }
-        .btn-ajout{ width: 100%; background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px 5px; border-radius: 4px; cursor: pointer; height: 40px; }
+        .btn-ajout{ width: 100%; background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px 15px; border-radius: 4px; cursor: pointer; height: 40px; }
 
         .input-nombre::placeholder { color: transparent; }
 
@@ -42,24 +41,26 @@
             .formulaire { padding: 5px; gap: 4px; align-items: center; }
             .champ-groupe label { display: none; }
             
-            /* Ajustement des proportions pour que ça reste lisible sur petit écran */
-            .cg-nom { flex: 1.5 !important; }
-            .cg-cat { flex: 1.2 !important; }
-            .cg-num { flex: 0.5 !important; }
+            /* Proportions pour le mode compact */
+            .cg-nom { flex: 3 !important; }
+            .cg-cat { flex: 0.8 !important; } /* Largeur juste pour l'emoji */
+            .cg-num { flex: 0.7 !important; }
             .cg-btn { flex: 0.6 !important; }
+            
+            input#nomInput, select#catInput, .input-nombre { min-width: 0; }
+            
+            /* On force l'affichage de l'emoji seul dans le select fermé */
+            select#catInput { font-size: 18px; padding: 5px; text-align: center; }
             
             .input-nombre::placeholder { color: #aaa; }
 
             .btn-ajout span { display: none; }
             .btn-ajout::after { content: '+'; }
             
-            select#catInput { font-size: 13px; }
-            
+            /* Filtres : Emoji uniquement */
             .zone-filtres button span { display: none; }
-            .btn-vais::after { content: 'Vais.'; }
-            .btn-ling::after { content: 'Ling.'; }
-            .btn-meub::after { content: 'Meub.'; }
-            .btn-div::after { content: 'Div.'; }
+            .btn-vais::after, .btn-ling::after, .btn-meub::after, .btn-div::after { content: '' !important; }
+            .zone-filtres button { font-size: 20px; padding: 10px 0; }
         }
 
         /* LISTE */
