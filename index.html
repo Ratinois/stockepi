@@ -8,32 +8,63 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
     <style>
         body{ font-family: sans-serif; padding: 5px; background: #f4f4f4; max-width: 650px; margin: auto; }
-        .formulaire{ background: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd; display: flex; gap: 8px; align-items: flex-end; }
+        
+        /* FORMULAIRE PC (par défaut) */
+        .formulaire{ 
+            background: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; 
+            border: 1px solid #ddd; display: flex; gap: 8px; align-items: flex-end;
+        }
         .champ-groupe { display: flex; flex-direction: column; gap: 2px; }
         .champ-groupe label { font-size: 11px; color: #666; font-weight: bold; margin-left: 2px; }
+        
         input#nomInput{ flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; min-width: 0; }
         .input-nombre{ width: 50px; padding: 10px 2px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; text-align: center; }
         select#catInput { padding: 9px; border-radius: 4px; border: 1px solid #ccc; background: white; height: 40px; }
         .btn-ajout{ background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px 15px; border-radius: 4px; cursor: pointer; height: 40px; }
+
+        /* FILTRES PC */
+        .zone-filtres { margin-bottom: 10px; display: flex; gap: 5px; justify-content: center; }
+        .zone-filtres button { 
+            flex: 1; padding: 10px 5px; font-size: 14px; cursor: pointer; border: 1px solid #ccc; 
+            background: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+
+        /* --- SPECIFIQUE MOBILE (Écran < 550px) --- */
+        @media (max-width: 550px) {
+            .formulaire { padding: 5px; gap: 4px; align-items: center; }
+            .champ-groupe label { display: none; } /* On cache les labels sur tel */
+            
+            .btn-ajout { width: 40px; padding: 0; font-size: 22px; }
+            .btn-ajout span { display: none; } /* Cache le texte "Ajouter" */
+            .btn-ajout::after { content: '+'; } /* Affiche juste le + */
+            
+            select#catInput { width: 85px; font-size: 13px; }
+            .input-nombre { width: 38px; }
+            
+            .zone-filtres button span { display: none; } /* Cache le texte des filtres sur tel */
+            .zone-filtres button::after { font-size: 12px; margin-left: 2px; }
+            
+            /* On remplace les noms par des versions courtes via CSS */
+            .btn-vais::after { content: 'Vais.'; }
+            .btn-ling::after { content: 'Ling.'; }
+            .btn-meub::after { content: 'Meub.'; }
+            .btn-div::after { content: 'Div.'; }
+        }
+
+        /* LISTE ET CARTES */
         .carte-objet{ background: white; border: 1px solid #ddd; padding: 5px 2px 5px 8px; margin-bottom: 4px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; height: 45px; }
         .nom-objet{ font-weight: bold; color: #333; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 16px; margin-right: 2px; }
         .alerte-icone { color: #e53935; margin-left: 5px; font-size: 14px; }
-        @media (max-width: 500px) {
-            .nom-objet.petite-police { font-size: 15px; letter-spacing: -0.5px; }
-            .formulaire { flex-wrap: wrap; }
-            input#nomInput { flex: 1 1 100%; }
-        }
         .controles{ display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
         .badge{ background: #e1f5fe; padding: 8px 0; border-radius: 4px; font-weight: bold; color: #0288d1; min-width: 32px; text-align: center; font-size: 0.9em; }
-        button{ cursor: pointer; padding: 10px 0; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 14px; min-width: 32px; text-align: center; }
-        button:active{ background: #e0e0e0; }
-        .btn-poubelle{ border: none; background: none; font-size: 1.2em; cursor: pointer; padding: 0 5px; flex-shrink: 0; }
+        button.ctrl-btn{ cursor: pointer; padding: 10px 0; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 14px; min-width: 32px; text-align: center; }
+        .btn-poubelle{ border: none; background: none; font-size: 1.2em; cursor: pointer; padding: 0 5px; }
         .filtre-actif { background: #0288d1 !important; color: white !important; border-color: #0288d1 !important; }
     </style>
 </head>
 <body>
 
-    <h2>📦 Gestion de Stock Epicerie</h2>
+    <h3 style="margin: 10px 0 10px 5px;">📦 Gestion de Stock</h3>
 
     <div class="formulaire">
         <div class="champ-groupe" style="flex: 2;">
@@ -51,21 +82,21 @@
         </div>
         <div class="champ-groupe">
             <label>Qté</label>
-            <input type="number" id="qteInput" class="input-nombre" min="0" value="0">
+            <input type="number" id="qteInput" class="input-nombre" min="0" value="" placeholder="Q.">
         </div>
         <div class="champ-groupe">
             <label>Min</label>
-            <input type="number" id="seuilInput" class="input-nombre" min="0" value="0">
+            <input type="number" id="seuilInput" class="input-nombre" min="0" value="" placeholder="M.">
         </div>
-        <button class="btn-ajout" onclick="CreerFourniture()">Ajouter</button>
+        <button class="btn-ajout" onclick="CreerFourniture()"><span>Ajouter</span></button>
     </div>
 
-    <div style="margin-bottom: 10px; display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
-        <button onclick="ChangerFiltre('Tous')" class="filtre-actif" style="flex:1">Tous</button>
-        <button onclick="ChangerFiltre('Vaisselle')" style="flex:1">🍽️ Vaisselle</button>
-        <button onclick="ChangerFiltre('Linge')" style="flex:1">🧺 Linge</button>
-        <button onclick="ChangerFiltre('Meuble')" style="flex:1">🗄️ Meubles</button>
-        <button onclick="ChangerFiltre('Divers')" style="flex:1">📦 Divers</button>
+    <div class="zone-filtres">
+        <button onclick="ChangerFiltre('Tous')" class="filtre-actif ctrl-btn">Tous</button>
+        <button onclick="ChangerFiltre('Vaisselle')" class="btn-vais ctrl-btn">🍽️ <span>Vaisselle</span></button>
+        <button onclick="ChangerFiltre('Linge')" class="btn-ling ctrl-btn">🧺 <span>Linge</span></button>
+        <button onclick="ChangerFiltre('Meuble')" class="btn-meub ctrl-btn">🗄️ <span>Meuble</span></button>
+        <button onclick="ChangerFiltre('Divers')" class="btn-div ctrl-btn">📦 <span>Divers</span></button>
     </div>
 
     <div id="liste-fournitures">Connexion au stock...</div>
@@ -121,32 +152,28 @@
             tableauTrie.forEach((f) => {
                 const catReelle = AttribuerCategorieAuto(f.n, f.c);
                 if (filtreActuel !== "Tous" && catReelle !== filtreActuel) return;
-
                 const seuilVrai = f.s || 0;
-                const estEnAlerte = (seuilVrai > 0 && f.q < seuilVrai); // Ta modification appliquée ici
-
+                const estEnAlerte = (seuilVrai > 0 && f.q < seuilVrai);
                 const div = document.createElement('div');
                 div.className = "carte-objet";
                 if (estEnAlerte){
                     div.style.background = "#ffebee";
                     div.style.borderColor = "#ef9a9a";
                 }
-                let classeTaille = (f.n.length > 15) ? "petite-police" : "";
                 const iconeAlerte = estEnAlerte ? `<span class="alerte-icone">⚠️</span>` : "";
-
                 div.innerHTML = `
-                    <div class="nom-objet ${classeTaille}">
+                    <div class="nom-objet">
                         <span onclick="ModifierSeuil('${f.id}', ${seuilVrai})" style="cursor:help">
                             ${getEmoji(f.n)}${f.n}
                         </span>
                         ${iconeAlerte}
                     </div>
                     <div class="controles">
-                        <button onclick="ChangerQuantite('${f.id}', -5)">-5</button>
-                        <button onclick="ChangerQuantite('${f.id}', -1)">-1</button>
+                        <button class="ctrl-btn" onclick="ChangerQuantite('${f.id}', -5)">-5</button>
+                        <button class="ctrl-btn" onclick="ChangerQuantite('${f.id}', -1)">-1</button>
                         <span class="badge">${f.q}</span>
-                        <button onclick="ChangerQuantite('${f.id}', 1)">+1</button>
-                        <button onclick="ChangerQuantite('${f.id}', 5)">+5</button>
+                        <button class="ctrl-btn" onclick="ChangerQuantite('${f.id}', 1)">+1</button>
+                        <button class="ctrl-btn" onclick="ChangerQuantite('${f.id}', 5)">+5</button>
                         <button class="btn-poubelle" onclick="SupprimerFourniture('${f.id}', '${f.n}')">🗑️</button>
                     </div>
                 `;
@@ -166,18 +193,17 @@
             let s = parseInt(seuilInput.value) || 0;
             if (n != ""){
                 db.ref('fournitures').push({ n: n, q: q, s: s, c: c, secret: monSecret });
-                nomInput.value = ""; qteInput.value = "0"; seuilInput.value = "0";
+                nomInput.value = ""; qteInput.value = ""; seuilInput.value = "";
                 nomInput.blur();
             } else { alert("Nom obligatoire."); }
         }
 
         function ChangerQuantite (id, delta){
             if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
-            const ref = db.ref('fournitures/' + id);
-            ref.once('value').then((snap) => {
+            db.ref('fournitures/' + id).once('value').then((snap) => {
                 let nv = (snap.val().q || 0) + delta;
                 if (nv < 0) nv = 0;
-                ref.update({ q: nv, secret: monSecret });
+                db.ref('fournitures/' + id).update({ q: nv, secret: monSecret });
             });
         }
 
@@ -197,18 +223,17 @@
         function ChangerFiltre (nouvelleCategorie){
             filtreActuel = nouvelleCategorie;
             document.querySelectorAll('[onclick^="ChangerFiltre"]').forEach(btn => {
-                if (btn.innerText.includes(nouvelleCategorie)) btn.classList.add('filtre-actif');
+                if (btn.innerText.includes(nouvelleCategorie) || (nouvelleCategorie==='Tous' && btn.innerText==='Tous')) 
+                    btn.classList.add('filtre-actif');
                 else btn.classList.remove('filtre-actif');
             });
             AfficherInterface(dernieresDonneesRecues);
         }
 
-        function EcouterStock (){
-            db.ref('fournitures').on('value', (snap) => {
-                dernieresDonneesRecues = snap.val();
-                AfficherInterface(dernieresDonneesRecues);
-            });
-        }
+        db.ref('fournitures').on('value', (snap) => {
+            dernieresDonneesRecues = snap.val();
+            AfficherInterface(dernieresDonneesRecues);
+        });
 
         function SauvegarderBDD (){
             db.ref('fournitures').once('value').then((snap) => {
@@ -244,8 +269,6 @@
             };
             lecteur.readAsText(fichier);
         }
-
-        EcouterStock();
     </script>
     
     <div style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
