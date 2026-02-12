@@ -9,7 +9,7 @@
     <style>
         body{ font-family: sans-serif; padding: 5px; background: #f4f4f4; max-width: 650px; margin: auto; }
         
-        /* FORMULAIRE PC (par défaut) */
+        /* FORMULAIRE PC - Répartition proportionnelle */
         .formulaire{ 
             background: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; 
             border: 1px solid #ddd; display: flex; gap: 8px; align-items: flex-end;
@@ -17,10 +17,18 @@
         .champ-groupe { display: flex; flex-direction: column; gap: 2px; }
         .champ-groupe label { font-size: 11px; color: #666; font-weight: bold; margin-left: 2px; }
         
-        input#nomInput{ flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; min-width: 0; }
-        .input-nombre{ width: 50px; padding: 10px 2px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; text-align: center; }
-        select#catInput { padding: 9px; border-radius: 4px; border: 1px solid #ccc; background: white; height: 40px; }
-        .btn-ajout{ background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px 15px; border-radius: 4px; cursor: pointer; height: 40px; }
+        /* Répartition des largeurs */
+        .cg-nom { flex: 2.5; } /* Le nom est le plus large */
+        .cg-cat { flex: 1.2; }
+        .cg-num { flex: 0.8; }
+        .cg-btn { flex: 0.5; }
+
+        input#nomInput{ width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
+        .input-nombre{ width: 100%; padding: 10px 2px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; text-align: center; box-sizing: border-box; }
+        select#catInput { width: 100%; padding: 9px; border-radius: 4px; border: 1px solid #ccc; background: white; height: 40px; box-sizing: border-box; }
+        .btn-ajout{ width: 100%; background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px 5px; border-radius: 4px; cursor: pointer; height: 40px; }
+
+        .input-nombre::placeholder { color: transparent; }
 
         /* FILTRES PC */
         .zone-filtres { margin-bottom: 10px; display: flex; gap: 5px; justify-content: center; }
@@ -32,26 +40,27 @@
         /* --- SPECIFIQUE MOBILE (Écran < 550px) --- */
         @media (max-width: 550px) {
             .formulaire { padding: 5px; gap: 4px; align-items: center; }
-            .champ-groupe label { display: none; } /* On cache les labels sur tel */
+            .champ-groupe label { display: none; }
             
-            .btn-ajout { width: 40px; padding: 0; font-size: 22px; }
-            .btn-ajout span { display: none; } /* Cache le texte "Ajouter" */
-            .btn-ajout::after { content: '+'; } /* Affiche juste le + */
+            .cg-nom { flex: 3; }
+            .cg-cat { flex: 1.5; }
+            .cg-num { flex: 1; }
             
-            select#catInput { width: 85px; font-size: 13px; }
-            .input-nombre { width: 38px; }
+            .input-nombre::placeholder { color: #aaa; }
+
+            .btn-ajout span { display: none; }
+            .btn-ajout::after { content: '+'; }
             
-            .zone-filtres button span { display: none; } /* Cache le texte des filtres sur tel */
-            .zone-filtres button::after { font-size: 12px; margin-left: 2px; }
+            select#catInput { font-size: 13px; }
             
-            /* On remplace les noms par des versions courtes via CSS */
+            .zone-filtres button span { display: none; }
             .btn-vais::after { content: 'Vais.'; }
             .btn-ling::after { content: 'Ling.'; }
             .btn-meub::after { content: 'Meub.'; }
             .btn-div::after { content: 'Div.'; }
         }
 
-        /* LISTE ET CARTES */
+        /* LISTE */
         .carte-objet{ background: white; border: 1px solid #ddd; padding: 5px 2px 5px 8px; margin-bottom: 4px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; height: 45px; }
         .nom-objet{ font-weight: bold; color: #333; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 16px; margin-right: 2px; }
         .alerte-icone { color: #e53935; margin-left: 5px; font-size: 14px; }
@@ -67,11 +76,11 @@
     <h3 style="margin: 10px 0 10px 5px;">📦 Gestion de Stock</h3>
 
     <div class="formulaire">
-        <div class="champ-groupe" style="flex: 2;">
+        <div class="champ-groupe cg-nom">
             <label>Article</label>
-            <input type="text" id="nomInput" placeholder="Nom...">
+            <input type="text" id="nomInput" placeholder="Nom">
         </div>
-        <div class="champ-groupe">
+        <div class="champ-groupe cg-cat">
             <label>Cat.</label>
             <select id="catInput">
                 <option value="Vaisselle">🍽️ Vaisselle</option>
@@ -80,15 +89,17 @@
                 <option value="Divers" selected>📦 Divers</option>
             </select>
         </div>
-        <div class="champ-groupe">
+        <div class="champ-groupe cg-num">
             <label>Qté</label>
             <input type="number" id="qteInput" class="input-nombre" min="0" value="" placeholder="Q.">
         </div>
-        <div class="champ-groupe">
+        <div class="champ-groupe cg-num">
             <label>Min</label>
             <input type="number" id="seuilInput" class="input-nombre" min="0" value="" placeholder="M.">
         </div>
-        <button class="btn-ajout" onclick="CreerFourniture()"><span>Ajouter</span></button>
+        <div class="champ-groupe cg-btn">
+            <button class="btn-ajout" onclick="CreerFourniture()"><span>Ajouter</span></button>
+        </div>
     </div>
 
     <div class="zone-filtres">
@@ -156,16 +167,11 @@
                 const estEnAlerte = (seuilVrai > 0 && f.q < seuilVrai);
                 const div = document.createElement('div');
                 div.className = "carte-objet";
-                if (estEnAlerte){
-                    div.style.background = "#ffebee";
-                    div.style.borderColor = "#ef9a9a";
-                }
+                if (estEnAlerte) { div.style.background = "#ffebee"; div.style.borderColor = "#ef9a9a"; }
                 const iconeAlerte = estEnAlerte ? `<span class="alerte-icone">⚠️</span>` : "";
                 div.innerHTML = `
                     <div class="nom-objet">
-                        <span onclick="ModifierSeuil('${f.id}', ${seuilVrai})" style="cursor:help">
-                            ${getEmoji(f.n)}${f.n}
-                        </span>
+                        <span onclick="ModifierSeuil('${f.id}', ${seuilVrai})" style="cursor:help">${getEmoji(f.n)}${f.n}</span>
                         ${iconeAlerte}
                     </div>
                     <div class="controles">
@@ -175,14 +181,13 @@
                         <button class="ctrl-btn" onclick="ChangerQuantite('${f.id}', 1)">+1</button>
                         <button class="ctrl-btn" onclick="ChangerQuantite('${f.id}', 5)">+5</button>
                         <button class="btn-poubelle" onclick="SupprimerFourniture('${f.id}', '${f.n}')">🗑️</button>
-                    </div>
-                `;
+                    </div>`;
                 conteneur.appendChild(div);
             });
         }
 
         function CreerFourniture (){
-            if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
+            if (monSecret == ""){ alert("Erreur."); return; }
             const nomInput = document.getElementById('nomInput');
             const qteInput = document.getElementById('qteInput');
             const seuilInput = document.getElementById('seuilInput');
@@ -199,7 +204,7 @@
         }
 
         function ChangerQuantite (id, delta){
-            if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
+            if (monSecret == ""){ alert("Erreur."); return; }
             db.ref('fournitures/' + id).once('value').then((snap) => {
                 let nv = (snap.val().q || 0) + delta;
                 if (nv < 0) nv = 0;
@@ -216,7 +221,7 @@
         }
 
         function SupprimerFourniture (id, nom){
-            if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
+            if (monSecret == ""){ alert("Erreur."); return; }
             if (confirm("Supprimer '" + nom + "' ?")) db.ref('fournitures/' + id).remove();
         }
 
