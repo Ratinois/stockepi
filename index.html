@@ -9,7 +9,7 @@
     <style>
         body{ font-family: sans-serif; padding: 5px; background: #f4f4f4; max-width: 650px; margin: auto; }
         
-        /* FORMULAIRE PC - Répartition proportionnelle */
+        /* FORMULAIRE PC */
         .formulaire{ 
             background: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; 
             border: 1px solid #ddd; display: flex; gap: 8px; align-items: flex-end;
@@ -17,10 +17,10 @@
         .champ-groupe { display: flex; flex-direction: column; gap: 2px; }
         .champ-groupe label { font-size: 11px; color: #666; font-weight: bold; margin-left: 2px; }
         
-        /* Répartition des largeurs */
-        .cg-nom { flex: 1.5; } /* Le nom est le plus large */
-        .cg-cat { flex: 2; }
-        .cg-num { flex: 0.8; }
+        /* Tes nouvelles proportions */
+        .cg-nom { flex: 1.5; } 
+        .cg-cat { flex: 1.5; }
+        .cg-num { flex: 0.5; }
         .cg-btn { flex: 1; }
 
         input#nomInput{ width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
@@ -30,7 +30,7 @@
 
         .input-nombre::placeholder { color: transparent; }
 
-        /* FILTRES PC */
+        /* FILTRES */
         .zone-filtres { margin-bottom: 10px; display: flex; gap: 5px; justify-content: center; }
         .zone-filtres button { 
             flex: 1; padding: 10px 5px; font-size: 14px; cursor: pointer; border: 1px solid #ccc; 
@@ -42,9 +42,11 @@
             .formulaire { padding: 5px; gap: 4px; align-items: center; }
             .champ-groupe label { display: none; }
             
-            .cg-nom { flex: 3; }
-            .cg-cat { flex: 1.5; }
-            .cg-num { flex: 1; }
+            /* Ajustement des proportions pour que ça reste lisible sur petit écran */
+            .cg-nom { flex: 2; }
+            .cg-cat { flex: 1.2; }
+            .cg-num { flex: 0.7; }
+            .cg-btn { flex: 0.6; }
             
             .input-nombre::placeholder { color: #aaa; }
 
@@ -77,7 +79,7 @@
 
     <div class="formulaire">
         <div class="champ-groupe cg-nom">
-            <label>Fourniture</label>
+            <label>Article</label>
             <input type="text" id="nomInput" placeholder="Nom">
         </div>
         <div class="champ-groupe cg-cat">
@@ -146,14 +148,11 @@
 
         function AfficherInterface (data){
             const conteneur = document.getElementById('liste-fournitures');
-            if (!data){
-                conteneur.innerHTML = "<i>Le stock est vide.</i>";
-                return;
-            }
+            if (!data) return;
             const getEmoji = (nom) => {
                 const n = nom.toLowerCase();
-                if (n.includes("assiette") || n.includes("verre") || n.includes("gobelet") || n.includes("tasse")) return "🍽️ ";
-                if (n.includes("drap") || n.includes("housse") || n.includes("linge")) return "🧺 ";
+                if (n.includes("assiette") || n.includes("verre")) return "🍽️ ";
+                if (n.includes("drap") || n.includes("linge")) return "🧺 ";
                 if (n.includes("meuble")) return "🗄️ ";
                 return "📦 ";
             };
@@ -200,11 +199,10 @@
                 db.ref('fournitures').push({ n: n, q: q, s: s, c: c, secret: monSecret });
                 nomInput.value = ""; qteInput.value = ""; seuilInput.value = "";
                 nomInput.blur();
-            } else { alert("Nom obligatoire."); }
+            }
         }
 
         function ChangerQuantite (id, delta){
-            if (monSecret == ""){ alert("Erreur."); return; }
             db.ref('fournitures/' + id).once('value').then((snap) => {
                 let nv = (snap.val().q || 0) + delta;
                 if (nv < 0) nv = 0;
@@ -221,7 +219,6 @@
         }
 
         function SupprimerFourniture (id, nom){
-            if (monSecret == ""){ alert("Erreur."); return; }
             if (confirm("Supprimer '" + nom + "' ?")) db.ref('fournitures/' + id).remove();
         }
 
@@ -243,7 +240,6 @@
         function SauvegarderBDD (){
             db.ref('fournitures').once('value').then((snap) => {
                 const data = snap.val();
-                if (!data) return;
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const lien = document.createElement('a');
@@ -252,7 +248,6 @@
         }
 
         async function RestaurerBDD (event){
-            if (monSecret == ""){ alert("Erreur : Aucun code secret configuré."); return; }
             const fichier = event.target.files[0];
             if (!fichier) return;
             const lecteur = new FileReader();
@@ -268,7 +263,6 @@
                             updates[id] = article;
                         }
                         await ref.set(updates);
-                        alert("Fait !");
                     }
                 } catch (err){ alert("Erreur JSON."); }
             };
