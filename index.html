@@ -150,6 +150,10 @@
         function AfficherInterface (data){
             const conteneur = document.getElementById('liste-fournitures');
             if (!data) return;
+
+            // Définition de l'ordre de priorité des catégories
+            const ordreCat = { "Vaisselle": 1, "Linge": 2, "Meuble": 3, "Divers": 4 };
+
             const getEmoji = (nom) => {
                 const n = nom.toLowerCase();
                 if (n.includes("assiette") || n.includes("verre") || n.includes("couvert") || n.includes("gobelet") || n.includes("tasse") || n.includes("fourchette")) return "🍽️ ";
@@ -157,8 +161,20 @@
                 if (n.includes("meuble") || n.includes("chaise") || n.includes("table")) return "🗄️ ";
                 return "📦 ";
             };
+
             const tableauTrie = Object.keys(data).map(id => ({ id: id, ...data[id] }));
-            tableauTrie.sort((a, b) => a.n.localeCompare(b.n));
+
+            // TRI : Par catégorie d'abord, puis alphabétique
+            tableauTrie.sort((a, b) => {
+                const catA = AttribuerCategorieAuto(a.n, a.c);
+                const catB = AttribuerCategorieAuto(b.n, b.c);
+                
+                if (ordreCat[catA] !== ordreCat[catB]) {
+                    return ordreCat[catA] - ordreCat[catB];
+                }
+                return a.n.localeCompare(b.n);
+            });
+
             conteneur.innerHTML = "";
             tableauTrie.forEach((f) => {
                 const catReelle = AttribuerCategorieAuto(f.n, f.c);
