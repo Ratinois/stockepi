@@ -14,106 +14,247 @@
             background: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; 
             border: 1px solid #ddd; display: flex; gap: 8px; align-items: flex-end;
         }
-        .champ-groupe { display: flex; flex-direction: column; gap: 2px; }
-        .champ-groupe label { font-size: 11px; color: #666; font-weight: bold; margin-left: 2px; }
+        .champ-groupe{ display: flex; flex-direction: column; gap: 2px; }
+        .champ-groupe label{ font-size: 11px; color: #666; font-weight: bold; margin-left: 2px; }
         
-        .cg-nom { flex: 1.5 !important; } 
-        .cg-cat { flex: 1.2 !important; }
-        .cg-num { flex: 0.5 !important; }
-        .cg-btn { flex: 0.6 !important; }
+        .cg-nom{ flex: 1.5 !important; } 
+        .cg-cat{ flex: 1.2 !important; }
+        .cg-num{ flex: 0.5 !important; }
+        .cg-btn{ flex: 0.6 !important; }
 
         input#nomInput{ width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
         .input-nombre{ width: 100%; padding: 10px 2px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; text-align: center; box-sizing: border-box; }
-        select#catInput { width: 100%; padding: 9px; border-radius: 4px; border: 1px solid #ccc; background: white; height: 40px; box-sizing: border-box; }
+        select#catInput{ width: 100%; padding: 9px; border-radius: 4px; border: 1px solid #ccc; background: white; height: 40px; box-sizing: border-box; }
         .btn-ajout{ width: 100%; background: #0288d1; color: white; border: none; font-weight: bold; padding: 10px 15px; border-radius: 4px; cursor: pointer; height: 40px; }
 
-        .input-nombre::placeholder { color: transparent; }
+        .input-nombre::placeholder{ color: transparent; }
 
         /* FILTRES */
-        .zone-filtres { margin-bottom: 10px; display: flex; gap: 5px; justify-content: center; }
-        .zone-filtres button { 
+        .zone-filtres{ margin-bottom: 10px; display: flex; gap: 5px; justify-content: center; }
+        .zone-filtres button{ 
             flex: 1; padding: 10px 5px; font-size: 14px; cursor: pointer; border: 1px solid #ccc; 
             background: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 5px;
         }
 
         /* --- SPECIFIQUE MOBILE (Écran < 550px) --- */
-        @media (max-width: 550px) {
-            .formulaire { padding: 5px; gap: 4px; align-items: center; }
-            .champ-groupe label { display: none; }
+        @media (max-width: 550px){
+            .formulaire{ padding: 5px; gap: 4px; align-items: center; }
+            .champ-groupe label{ display: none; }
             
             /* Proportions pour le mode compact */
-            .cg-nom { flex: 1.5 !important; }
-            .cg-cat { flex: 0.55 !important; } /* Largeur juste pour l'emoji */
-            .cg-num { flex: 0.5 !important; }
-            .cg-btn { flex: 0.5 !important; }
+            .cg-nom{ flex: 1.5 !important; }
+            .cg-cat{ flex: 0.55 !important; } /* Largeur juste pour l'emoji */
+            .cg-num{ flex: 0.5 !important; }
+            .cg-btn{ flex: 0.5 !important; }
             
-            input#nomInput, select#catInput, .input-nombre { min-width: 0; }
+            input#nomInput, select#catInput, .input-nombre{ min-width: 0; }
             
             /* On force l'affichage de l'emoji seul dans le select fermé */
-            select#catInput { font-size: 18px; padding: 5px; text-align: center; }
+            select#catInput{ font-size: 18px; padding: 5px; text-align: center; }
             
-            .input-nombre::placeholder { color: #aaa; }
+            .input-nombre::placeholder{ color: #aaa; }
 
-            .btn-ajout span { display: none; }
-            .btn-ajout::after { content: '+'; }
+            .btn-ajout span{ display: none; }
+            .btn-ajout::after{ content: '+'; }
             
             /* Filtres : Emoji uniquement */
-            .zone-filtres button span { display: none; }
-            .btn-vais::after, .btn-ling::after, .btn-meub::after, .btn-div::after { content: '' !important; }
-            .zone-filtres button { font-size: 20px; padding: 10px 0; }
+            .zone-filtres button span{ display: none; }
+            .btn-vais::after, .btn-ling::after, .btn-meub::after, .btn-div::after{ content: '' !important; }
+            .zone-filtres button{ font-size: 20px; padding: 10px 0; }
+        }
+
+        @media (min-width: 768px) {
+            .label-cat {
+                font-size: 0 !important; /* Force la disparition du texte "Cat." */
+            }
+            .label-cat::before {
+                content: "Catégorie";
+                font-size: 14px !important; /* Force l'affichage du mot complet */
+                display: inline-block;
+            }
         }
 
         /* LISTE */
         .carte-objet{ background: white; border: 1px solid #ddd; padding: 5px 2px 5px 8px; margin-bottom: 4px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; height: 45px; }
         .nom-objet{ font-weight: bold; color: #333; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 16px; margin-right: 2px; }
-        .alerte-icone { color: #e53935; margin-left: 5px; font-size: 14px; }
+        .alerte-icone{ color: #e53935; margin-left: 5px; font-size: 14px; }
         .controles{ display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
         .badge{ background: #e1f5fe; padding: 8px 0; border-radius: 4px; font-weight: bold; color: #0288d1; min-width: 32px; text-align: center; font-size: 0.9em; }
         button.ctrl-btn{ cursor: pointer; padding: 10px 0; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 14px; min-width: 32px; text-align: center; }
         .btn-poubelle{ border: none; background: none; font-size: 1.2em; cursor: pointer; padding: 0 5px; }
-        .filtre-actif { background: #0288d1 !important; color: white !important; border-color: #0288d1 !important; }
+        .filtre-actif{ background: #0288d1 !important; color: white !important; border-color: #0288d1 !important; }
+    
+        .onglets{ display: flex; gap: 5px; margin-bottom: 10px; }
+        .onglets button{ flex: 1; padding: 12px; border: none; background: #ddd; font-weight: bold; cursor: pointer; border-radius: 6px; }
+        .onglet-active{ background: #0288d1 !important; color: white; }
+
+        .cadre-photo{ position: relative; border: 2px solid #0288d1; border-radius: 10px; overflow: hidden; }
+        .label-zone{ position: absolute; top: 5px; left: 5px; background: rgba(2, 136, 209, 0.8); color: white; padding: 3px 8px; font-size: 12px; font-weight: bold; border-radius: 4px; }
+        .grille-niveaux{ position: absolute; right: 5px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: space-around; color: white; font-weight: bold; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+
+        /* On supprime l'ancien badge-zone orange et on utilise ce style propre */
+        .badge-zone, .badge-loc {
+            background: #f1f3f4;
+            color: #444;
+            border: 1px solid #ccc;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px; /* On garde ta taille d'origine */
+            font-weight: bold;
+            margin-left: 5px;
+            cursor: pointer;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .badge-zone:hover, .badge-loc:hover {
+            background: #e8eaed;
+            border-color: #999;
+        }
+
+        .btn-voir-plan {
+            cursor: pointer;
+            margin-left: 6px;
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 1.2em;
+            filter: grayscale(0.5); /* Plus discret que la loupe bleue vive */
+            transition: transform 0.1s;
+        }
+
+        .btn-voir-plan:hover {
+            transform: scale(1.1);
+            filter: grayscale(0);
+        }
+        
+        /* Slider horizontal corrigé */
+        .zone-slider{
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 0; /* Pas d'espace pour le 100% */
+            padding: 10px 0;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch; /* Défilement fluide iOS */
+            scroll-behavior: smooth;
+        }
+        .zone-slider::-webkit-scrollbar{ display: none; }
+
+        .zone-item{
+            flex: 0 0 100%; /* Prend toute la largeur, une par une */
+            scroll-snap-align: start;
+            position: relative;
+            box-sizing: border-box;
+        }
+        
+        /* On garde la taille originale de l'image */
+        .zone-item img{
+            width: 100%;
+            height: auto; 
+            display: block;
+            border-radius: 8px;
+        }
+
+        .conteneur-slider { position: relative; }
+        
+        .btn-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(0,0,0,0.4); color: white; border: none;
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            font-size: 20px; z-index: 10; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-nav:hover { background: rgba(0,0,0,0.7); }
+        .btn-prev { left: 10px; }
+        .btn-next { right: 10px; }
+
     </style>
 </head>
 <body>
 
-    <h3 style="margin: 10px 0 10px 5px;">📦 Gestion de Stock</h3>
+    <div class="onglets">
+        <button id="btnStock" class="onglet-active" onclick="ChangerOnglet('stock')">📦 Stock</button>
+        <button id="btnPlan" onclick="ChangerOnglet('plan')">📍 Plan</button>
+    </div>
+    
+    <div id="section-plan" style="display:none; margin-top:10px;">
+        <div class="conteneur-slider">
+            <button class="btn-nav btn-prev" onclick="SliderNav(-1)">❮</button>
+            <button class="btn-nav btn-next" onclick="SliderNav(1)">❯</button>
+            
+            <div class="zone-slider" id="planSlider">
+                <div class="zone-item">
+                    <div class="cadre-photo">
+                        <div class="label-zone">ZONE A (Divers)</div>
+                        <img src="1.jpg">
+                        <div class="grille-niveaux"><span>A4</span><span>A3</span><span>A2</span><span>A1</span></div>
+                    </div>
+                </div>
 
-    <div class="formulaire">
-        <div class="champ-groupe cg-nom">
-            <label>Article</label>
-            <input type="text" id="nomInput" placeholder="Nom">
-        </div>
-        <div class="champ-groupe cg-cat">
-            <label>Cat.</label>
-            <select id="catInput">
-                <option value="Vaisselle" selected>🍽️ Vaisselle</option>
-                <option value="Linge">🧺 Linge</option>
-                <option value="Meuble">🗄️ Meuble</option>
-                <option value="Divers">📦 Divers</option>
-            </select>
-        </div>
-        <div class="champ-groupe cg-num">
-            <label>Qté</label>
-            <input type="number" id="qteInput" class="input-nombre" min="0" value="" placeholder="Qté">
-        </div>
-        <div class="champ-groupe cg-num">
-            <label>Min</label>
-            <input type="number" id="seuilInput" class="input-nombre" min="0" value="" placeholder="Min">
-        </div>
-        <div class="champ-groupe cg-btn">
-            <button class="btn-ajout" onclick="CreerFourniture()"><span>Ajouter</span></button>
+                <div class="zone-item">
+                    <div class="cadre-photo">
+                        <div class="label-zone">ZONE B (Vaisselle/Divers)</div>
+                        <img src="2.jpg">
+                        <div class="grille-niveaux"><span>B4</span><span>B3</span><span>B2</span><span>B1</span></div>
+                    </div>
+                </div>
+                
+                <div class="zone-item">
+                    <div class="cadre-photo">
+                        <div class="label-zone">ZONE C (Linge)</div>
+                        <img src="3.jpg">
+                        <div class="grille-niveaux"><span>C4</span><span>C3</span><span>C2</span><span>C1</span></div>
+                    </div>
+                </div>
+
+                <div class="zone-item">
+                    <div class="cadre-photo">
+                        <div class="label-zone">ZONE D (Linge)</div>
+                        <img src="4.jpg">
+                        <div class="grille-niveaux"><span>D4</span><span>D3</span><span>D2</span><span>D1</span></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="zone-filtres">
-        <button onclick="ChangerFiltre('Tous')" class="filtre-actif ctrl-btn">Tous</button>
-        <button onclick="ChangerFiltre('Vaisselle')" class="btn-vais ctrl-btn">🍽️ <span>Vaisselle</span></button>
-        <button onclick="ChangerFiltre('Linge')" class="btn-ling ctrl-btn">🧺 <span>Linge</span></button>
-        <button onclick="ChangerFiltre('Meuble')" class="btn-meub ctrl-btn">🗄️ <span>Meuble</span></button>
-        <button onclick="ChangerFiltre('Divers')" class="btn-div ctrl-btn">📦 <span>Divers</span></button>
-    </div>
+    <div id="section-stock">
+        <div class="formulaire" id="formulaire-ajout">
+            <div class="champ-groupe cg-nom">
+                <label>Article</label>
+                <input type="text" id="nomInput" placeholder="Nom">
+            </div>
+            <div class="champ-groupe cg-cat">
+                <label class="label-cat">Cat.</label>
+                <select id="catInput">
+                    <option value="Vaisselle" selected>🍽️ Vaisselle</option>
+                    <option value="Linge">🧺 Linge</option>
+                    <option value="Meuble">🗄️ Meuble</option>
+                    <option value="Divers">📦 Divers</option>
+                </select>
+            </div>
+            <div class="champ-groupe cg-num">
+                <label>Qté</label>
+                <input type="number" id="qteInput" class="input-nombre" min="0" value="" placeholder="Qté">
+            </div>
+            <div class="champ-groupe cg-num">
+                <label>Min</label>
+                <input type="number" id="seuilInput" class="input-nombre" min="0" value="" placeholder="Min">
+            </div>
+            <div class="champ-groupe cg-btn">
+                <button class="btn-ajout" onclick="CreerFourniture()"><span>Ajouter</span></button>
+            </div>
+        </div>
 
-    <div id="liste-fournitures">Connexion au stock...</div>
+        <div class="zone-filtres">
+            <button onclick="ChangerFiltre('Tous')" class="filtre-actif ctrl-btn">Tous</button>
+            <button onclick="ChangerFiltre('Vaisselle')" class="btn-vais ctrl-btn">🍽️ <span>Vaisselle</span></button>
+            <button onclick="ChangerFiltre('Linge')" class="btn-ling ctrl-btn">🧺 <span>Linge</span></button>
+            <button onclick="ChangerFiltre('Meuble')" class="btn-meub ctrl-btn">🗄️ <span>Meuble</span></button>
+            <button onclick="ChangerFiltre('Divers')" class="btn-div ctrl-btn">📦 <span>Divers</span></button>
+        </div>
+
+        <div id="liste-fournitures">Connexion au stock...</div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -138,38 +279,56 @@
         }
         let monSecret = localStorage.getItem('secret_stock') || "";
 
-        function AttribuerCategorieAuto (nom, catExistante){
+        // 1. On définit la base de données de mots-clés une seule fois
+        const CONFIG_CATEGORIES = {
+            "Vaisselle": {
+                emoji: "🍽️ ",
+                mots: ["assiette", "verre", "couvert", "gobelet", "tasse", "fourchette", "couteau", "cuillère"]
+            },
+            "Linge": {
+                emoji: "🧺 ",
+                mots: ["drap", "housse", "linge", "serviette", "taie", "alèse", "couette", "matelas", "torchon", "oreiller"]
+            },
+            "Meuble": {
+                emoji: "🗄️ ",
+                mots: ["meuble", "chaise", "table"]
+            }
+        };
+
+        
+
+        function AttribuerCategorieAuto(nom, catExistante){
             if (catExistante && catExistante !== "Divers") return catExistante;
+            
             const n = nom.toLowerCase();
-            if (n.includes("assiette") || n.includes("verre") || n.includes("couvert") || n.includes("gobelet") || n.includes("tasse") || n.includes("fourchette")) return "Vaisselle";
-            if (n.includes("drap") || n.includes("housse") || n.includes("linge") || n.includes("serviette") || n.includes("taie")) return "Linge";
-            if (n.includes("meuble") || n.includes("chaise") || n.includes("table")) return "Meuble";
+            // On cherche si un mot-clé correspond dans notre config
+            for (const [cat, data] of Object.entries(CONFIG_CATEGORIES)){
+                if (data.mots.some(mot => n.includes(mot))) return cat;
+            }
             return "Divers";
         }
 
-        function AfficherInterface (data){
+        function AfficherInterface(data){
             const conteneur = document.getElementById('liste-fournitures');
             if (!data) return;
 
-            // Définition de l'ordre de priorité des catégories
             const ordreCat = { "Vaisselle": 1, "Linge": 2, "Meuble": 3, "Divers": 4 };
 
             const getEmoji = (nom) => {
                 const n = nom.toLowerCase();
-                if (n.includes("assiette") || n.includes("verre") || n.includes("couvert") || n.includes("gobelet") || n.includes("tasse") || n.includes("fourchette")) return "🍽️ ";
-                if (n.includes("drap") || n.includes("housse") || n.includes("linge") || n.includes("serviette") || n.includes("taie")) return "🧺 ";
-                if (n.includes("meuble") || n.includes("chaise") || n.includes("table")) return "🗄️ ";
+                for (const data of Object.values(CONFIG_CATEGORIES)){
+                    if (data.mots.some(mot => n.includes(mot))) return data.emoji;
+                }
                 return "📦 ";
             };
 
             const tableauTrie = Object.keys(data).map(id => ({ id: id, ...data[id] }));
 
-            // TRI : Par catégorie d'abord, puis alphabétique
             tableauTrie.sort((a, b) => {
                 const catA = AttribuerCategorieAuto(a.n, a.c);
                 const catB = AttribuerCategorieAuto(b.n, b.c);
                 
-                if (ordreCat[catA] !== ordreCat[catB]) {
+                if (ordreCat[catA] !== ordreCat[catB]){
                     return ordreCat[catA] - ordreCat[catB];
                 }
                 return a.n.localeCompare(b.n);
@@ -181,13 +340,16 @@
                 if (filtreActuel !== "Tous" && catReelle !== filtreActuel) return;
                 const seuilVrai = f.s || 0;
                 const estEnAlerte = (seuilVrai > 0 && f.q < seuilVrai);
+                const loc = f.l || "A1";
                 const div = document.createElement('div');
                 div.className = "carte-objet";
-                if (estEnAlerte) { div.style.background = "#ffebee"; div.style.borderColor = "#ef9a9a"; }
+                if (estEnAlerte){ div.style.background = "#ffebee"; div.style.borderColor = "#ef9a9a"; }
                 const iconeAlerte = estEnAlerte ? `<span class="alerte-icone">⚠️</span>` : "";
                 div.innerHTML = `
                     <div class="nom-objet">
                         <span onclick="ModifierSeuil('${f.id}', ${seuilVrai})" style="cursor:help">${getEmoji(f.n)}${f.n}</span>
+                        <span class="badge-zone" onclick="ChangerZoneManuel('${f.id}', '${loc}')">📍 ${loc}</span>
+                        <span onclick="OuvrirPlanZone('${loc}')" style="cursor:pointer; margin-left:8px;">🔍</span>
                         ${iconeAlerte}
                     </div>
                     <div class="controles">
@@ -202,19 +364,32 @@
             });
         }
 
-        function CreerFourniture (){
+        function CreerFourniture(){
             if (monSecret == ""){ alert("Erreur."); return; }
             const nomInput = document.getElementById('nomInput');
             const qteInput = document.getElementById('qteInput');
             const seuilInput = document.getElementById('seuilInput');
             const catInput = document.getElementById('catInput');
-            const n = nomInput.value.trim();
+            
+            let n = nomInput.value.trim();
             const c = catInput.value;
             let q = parseInt(qteInput.value) || 0;
             let s = parseInt(seuilInput.value) || 0;
+
             if (n != ""){
-                db.ref('fournitures').push({ n: n, q: q, s: s, c: c, secret: monSecret });
-                nomInput.value = ""; qteInput.value = ""; seuilInput.value = "";
+                // Mise en forme : Majuscule en début, reste en minuscules
+                n = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
+                
+                // Attribution de la zone automatique
+                const zoneAuto = AttribuerZoneAuto(n);
+
+                db.ref('fournitures').push({ 
+                    n: n, q: q, s: s, c: c, l: zoneAuto, secret: monSecret 
+                });
+
+                nomInput.value = ""; 
+                qteInput.value = ""; 
+                seuilInput.value = "";
                 nomInput.blur();
             }
         }
@@ -242,11 +417,39 @@
         function ChangerFiltre (nouvelleCategorie){
             filtreActuel = nouvelleCategorie;
             document.querySelectorAll('[onclick^="ChangerFiltre"]').forEach(btn => {
-                if (btn.innerText.includes(nouvelleCategorie) || (nouvelleCategorie==='Tous' && btn.innerText==='Tous')) 
+                if (btn.innerText.includes(nouvelleCategorie) || (nouvelleCategorie === 'Tous' && btn.innerText === 'Tous')) 
                     btn.classList.add('filtre-actif');
                 else btn.classList.remove('filtre-actif');
             });
             AfficherInterface(dernieresDonneesRecues);
+        }
+
+        function ChangerOnglet (nom){
+            const isStock = (nom == "stock");
+            document.getElementById('section-stock').style.display = isStock ? "block" : "none";
+            document.getElementById('formulaire-ajout').style.display = isStock ? "flex" : "none";
+            document.getElementById('section-plan').style.display = isStock ? "none" : "block";
+            
+            document.getElementById('btnStock').className = isStock ? "onglet-active" : "";
+            document.getElementById('btnPlan').className = isStock ? "" : "onglet-active";
+        }
+
+        function ChangerZoneManuel (id, zoneActuelle){
+            const nouvelleZone = prompt("Nouvel emplacement (ex: A1, B3...) :", zoneActuelle);
+            if (nouvelleZone != null && nouvelleZone != ""){
+                db.ref('fournitures/' + id).update({ l: nouvelleZone.toUpperCase() });
+            }
+        }
+
+        function AttribuerZoneAuto (nom){ // doit trigger que si aucune zone n'a été donnée
+            const n = nom.toLowerCase();
+            if (n.includes("drap") || n.includes("linge") || n.includes("meuble")) return "A1";
+            if (n.includes("assiette") || n.includes("verre")) return "B2";
+            if (n.includes("chaise") || n.includes("table")) return "C1";
+            if (n.includes("housse") || n.includes("serviette") || n.includes("torchon")) return "C2";
+            if (n.includes("alèse") || n.includes("couette") || n.includes("matelas")) return "C3";
+            if (n.includes("oreiller") || n.includes("table")) return "D2";
+            return "A1";
         }
 
         db.ref('fournitures').on('value', (snap) => {
@@ -254,7 +457,7 @@
             AfficherInterface(dernieresDonneesRecues);
         });
 
-        function SauvegarderBDD (){
+        function SauvegarderBDD(){
             db.ref('fournitures').once('value').then((snap) => {
                 const data = snap.val();
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -263,6 +466,22 @@
                 lien.href = url; lien.download = "stock_backup.json"; lien.click();
             });
         }
+
+        // Navigation par flèches (clic)
+        function SliderNav (direction){
+            const slider = document.getElementById('planSlider');
+            const scrollAmount = slider.clientWidth; // Défilement d'une largeur exacte
+            slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+
+        // Navigation par clavier (flèches gauche/droite)
+        window.addEventListener('keydown', (e) => {
+            // On ne s'active que si l'onglet Plan est visible
+            if (document.getElementById('section-plan').style.display === "block"){
+                if (e.key === "ArrowLeft") SliderNav(-1);
+                if (e.key === "ArrowRight") SliderNav(1);
+            }
+        });
 
         async function RestaurerBDD (event){
             const fichier = event.target.files[0];
@@ -285,6 +504,32 @@
             };
             lecteur.readAsText(fichier);
         }
+
+        function OuvrirPlanZone(localisation){
+            if (!localisation) return;
+            
+            const lettre = localisation.charAt(0).toUpperCase();
+            const index = lettre.charCodeAt(0) - 65; 
+
+            // 1. On affiche l'onglet d'abord pour que le slider ait une largeur calculable
+            ChangerOnglet('plan');
+
+            // 2. On attend le prochain cycle de rendu (très rapide) pour scroller
+            requestAnimationFrame(() => {
+                const slider = document.getElementById('planSlider');
+                if (slider){
+                    const largeur = slider.clientWidth;
+                    if (largeur > 0){
+                        slider.scrollTo({
+                            left: index * largeur,
+                            behavior: 'auto' // 'auto' pour que ce soit instantané dès l'ouverture
+                        });
+                    }
+                }
+            });
+        }
+
+
     </script>
     
     <div style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
