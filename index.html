@@ -661,20 +661,7 @@
             return "A1";
         }
 
-        db.ref('fournitures').on('value', (snap) => {
-            dernieresDonneesRecues = snap.val();
-            AfficherInterface(dernieresDonneesRecues);
-        });
-
-        function SauvegarderBDD(){
-            db.ref('fournitures').once('value').then((snap) => {
-                const data = snap.val();
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const lien = document.createElement('a');
-                lien.href = url; lien.download = "stock_backup.json"; lien.click();
-            });
-        }
+        
 
         // Navigation par flèches (clic)
         function SliderNav (direction){
@@ -691,6 +678,56 @@
                 if (e.key === "ArrowRight") SliderNav(1);
             }
         });
+
+        function OuvrirPlanZone(localisation){
+            if (!localisation || localisation.length < 2) return;
+            
+            const lettre = localisation.charAt(0).toUpperCase();
+            const niveau = parseInt(localisation.charAt(1));
+            const index = lettre.charCodeAt(0) - 65; 
+            const slider = document.getElementById('planSlider');
+
+            if (slider){
+                // 1. On pré-positionne le slider AVANT d'afficher l'onglet
+                // On coupe le snap pour que le déplacement soit immédiat
+                slider.style.scrollSnapType = "none";
+                const largeur = slider.clientWidth;
+                slider.scrollLeft = index * largeur;
+
+                // 2. Maintenant on affiche l'onglet (il sera déjà sur la bonne image)
+                ChangerOnglet('plan');
+
+                // 3. On gère le flash et on remet le snap
+                requestAnimationFrame(() => {
+                    const flash = document.getElementById('flash-' + lettre);
+                    if (flash && niveau >= 1 && niveau <= 4){
+                        const positions = { 1: "75%", 2: "50%", 3: "25%", 4: "0%" };
+                        flash.style.top = positions[niveau];
+                        
+                        flash.classList.remove('active');
+                        void flash.offsetWidth; 
+                        flash.classList.add('active');
+                    }
+                    // On remet le snap pour que l'utilisateur puisse scroller normalement après
+                    slider.style.scrollSnapType = "x mandatory";
+                });
+            }
+        }
+
+        db.ref('fournitures').on('value', (snap) => {
+            dernieresDonneesRecues = snap.val();
+            AfficherInterface(dernieresDonneesRecues);
+        });
+
+        function SauvegarderBDD(){
+            db.ref('fournitures').once('value').then((snap) => {
+                const data = snap.val();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const lien = document.createElement('a');
+                lien.href = url; lien.download = "stock_backup.json"; lien.click();
+            });
+        }
 
         async function RestaurerBDD (event){
             const fichier = event.target.files[0];
@@ -712,37 +749,6 @@
                 } catch (err){ alert("Erreur JSON."); }
             };
             lecteur.readAsText(fichier);
-        }
-
-        function OuvrirPlanZone(localisation){
-            if (!localisation || localisation.length < 2) return;
-            
-            const lettre = localisation.charAt(0).toUpperCase(); // A, B, C ou D
-            const niveau = parseInt(localisation.charAt(1));    // 1, 2, 3 ou 4
-            const index = lettre.charCodeAt(0) - 65; 
-
-            ChangerOnglet('plan');
-
-            requestAnimationFrame(() => {
-                const slider = document.getElementById('planSlider');
-                if (slider){
-                    const largeur = slider.clientWidth;
-                    slider.scrollTo({ left: index * largeur, behavior: 'auto' });
-
-                    // --- GESTION DE LA SURBRILLANCE ---
-                    const flash = document.getElementById('flash-' + lettre);
-                    if (flash && niveau >= 1 && niveau <= 4) {
-                        // Positionnement : 1 est en bas (75%), 4 est en haut (0%)
-                        const positions = { 1: "75%", 2: "50%", 3: "25%", 4: "0%" };
-                        flash.style.top = positions[niveau];
-                        
-                        // Relancer l'animation
-                        flash.classList.remove('active');
-                        void flash.offsetWidth; // Force le redessin pour rejouer l'animation
-                        flash.classList.add('active');
-                    }
-                }
-            });
         }
 
 
