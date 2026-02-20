@@ -84,9 +84,27 @@
                 font-size: 16px;
             }
             
-            /* On donne un peu plus de place au nom maintenant */
+            /* Le conteneur du nom doit utiliser flex pour pousser les badges */
             .nom-objet {
-                max-width: 50%;
+                display: flex !important;
+                align-items: center;
+                flex: 1;
+                min-width: 0; /* Important pour que le texte se coupe avec ... */
+                overflow: hidden;
+            }
+
+            /* Le texte du nom prend tout l'espace libre */
+            .nom-objet span:first-child {
+                flex: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-right: 5px;
+            }
+
+            /* On s'assure que les badges ne rétrécissent pas */
+            .badge-zone, .btn-voir-plan {
+                flex-shrink: 0;
             }
             
         }
