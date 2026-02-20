@@ -22,6 +22,11 @@
         .cg-num{ flex: 0.5 !important; }
         .cg-btn{ flex: 0.6 !important; }
 
+        .cg-loc {
+            flex: 0.5 !important; /* Largeur pour A1, B2... */
+            min-width: 55px;
+        }
+
         input#nomInput{ width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
         .input-nombre{ width: 100%; padding: 10px 2px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; text-align: center; box-sizing: border-box; }
         select#catInput{ width: 100%; padding: 9px; border-radius: 4px; border: 1px solid #ccc; background: white; height: 40px; box-sizing: border-box; }
@@ -42,10 +47,15 @@
             .champ-groupe label{ display: none; }
             
             /* Proportions pour le mode compact */
-            .cg-nom{ flex: 1.5 !important; }
+            .cg-nom{ flex: 1 !important; }
             .cg-cat{ flex: 0.55 !important; } /* Largeur juste pour l'emoji */
             .cg-num{ flex: 0.5 !important; }
             .cg-btn{ flex: 0.5 !important; }
+
+            .cg-loc {
+                flex: 0.4 !important; /* Largeur pour A1, B2... */
+                min-width: 40px;
+            }
             
             input#nomInput, select#catInput, .input-nombre{ min-width: 0; }
             
@@ -92,6 +102,7 @@
                 min-width: 0; /* Important pour que le texte se coupe avec ... */
                 overflow: hidden;
                 font-size: 13px !important;
+                margin-right: 12px !important;
             }
 
             /* Le texte du nom prend tout l'espace libre */
@@ -109,7 +120,6 @@
                 font-size: 10px; /* On réduit aussi un peu les badges pour gagner de la place */
                 padding: 1px 4px;
             }
-            
         }
 
         @media (min-width: 768px) {
@@ -235,6 +245,31 @@
         .nom-objet span:first-child{ flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         .badge-zone{ flex-shrink: 0; }
 
+        /* Calque de surbrillance */
+        .highlight-overlay {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 25%; /* 1/4 de l'image */
+            background: rgba(255, 255, 0, 0.4); /* Jaune transparent */
+            box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.5);
+            pointer-events: none; /* Ne bloque pas le clic */
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 5;
+        }
+
+        /* L'effet de flash */
+        .highlight-overlay.active {
+            animation: flashEffect 1s ease-out;
+        }
+
+        @keyframes flashEffect {
+            0% { opacity: 0; }
+            30% { opacity: 1; background: rgba(255, 255, 255, 0.6); }
+            100% { opacity: 0; }
+        }
+
     </style>
 </head>
 <body>
@@ -251,32 +286,32 @@
             
             <div class="zone-slider" id="planSlider">
                 <div class="zone-item">
-                    <div class="cadre-photo">
-                        <div class="label-zone">ZONE A (Divers)</div>
+                    <div class="cadre-photo" id="container-A">
+                        <div class="highlight-overlay" id="flash-A"></div> <div class="label-zone">ZONE A (Divers)</div>
                         <img src="1.jpg">
                         <div class="grille-niveaux"><span>A4</span><span>A3</span><span>A2</span><span>A1</span></div>
                     </div>
                 </div>
 
                 <div class="zone-item">
-                    <div class="cadre-photo">
-                        <div class="label-zone">ZONE B (Vaisselle/Divers)</div>
+                    <div class="cadre-photo" id="container-B">
+                        <div class="highlight-overlay" id="flash-B"></div> <div class="label-zone">ZONE B (Vaisselle/Divers)</div>
                         <img src="2.jpg">
                         <div class="grille-niveaux"><span>B4</span><span>B3</span><span>B2</span><span>B1</span></div>
                     </div>
                 </div>
                 
                 <div class="zone-item">
-                    <div class="cadre-photo">
-                        <div class="label-zone">ZONE C (Linge)</div>
+                    <div class="cadre-photo" id="container-C">
+                        <div class="highlight-overlay" id="flash-C"></div> <div class="label-zone">ZONE C (Linge)</div>
                         <img src="3.jpg">
                         <div class="grille-niveaux"><span>C4</span><span>C3</span><span>C2</span><span>C1</span></div>
                     </div>
                 </div>
 
                 <div class="zone-item">
-                    <div class="cadre-photo">
-                        <div class="label-zone">ZONE D (Linge)</div>
+                    <div class="cadre-photo" id="container-D">
+                        <div class="highlight-overlay" id="flash-D"></div> <div class="label-zone">ZONE D (Linge)</div>
                         <img src="4.jpg">
                         <div class="grille-niveaux"><span>D4</span><span>D3</span><span>D2</span><span>D1</span></div>
                     </div>
@@ -288,7 +323,7 @@
     <div id="section-stock">
         <div class="formulaire" id="formulaire-ajout">
             <div class="champ-groupe cg-nom">
-                <label>Article</label>
+                <label>Fourniture</label>
                 <input type="text" id="nomInput" placeholder="Nom">
             </div>
             <div class="champ-groupe cg-cat">
@@ -308,6 +343,14 @@
                 <label>Min</label>
                 <input type="number" id="seuilInput" class="input-nombre" min="0" value="" placeholder="Min">
             </div>
+
+            <div class="champ-groupe cg-loc">
+                <label>Loc.</label>
+                <button type="button" id="locInputBtn" class="input-nombre" 
+                        style="width:100%; height:35px; background:white; border:1px solid #ccc; border-radius:4px; font-weight:bold; color:#666;"
+                        onclick="OuvrirGrilleAjout()">Pos</button>
+            </div>
+            
             <div class="champ-groupe cg-btn">
                 <button class="btn-ajout" onclick="CreerFourniture()"><span>Ajouter</span></button>
             </div>
@@ -362,8 +405,6 @@
                 mots: ["meuble", "chaise", "table"]
             }
         };
-
-        
 
         function AttribuerCategorieAuto(nom, catExistante){
             if (catExistante && catExistante !== "Divers") return catExistante;
@@ -438,26 +479,36 @@
             const qteInput = document.getElementById('qteInput');
             const seuilInput = document.getElementById('seuilInput');
             const catInput = document.getElementById('catInput');
-            
+            const btnLoc = document.getElementById('locInputBtn');
+
             let n = nomInput.value.trim();
             const c = catInput.value;
             let q = parseInt(qteInput.value) || 0;
             let s = parseInt(seuilInput.value) || 0;
+            
+            // On vérifie d'abord si l'utilisateur a choisi une zone manuellement
+            let l = (btnLoc.innerText === "Pos") ? "" : btnLoc.innerText;
 
             if (n != ""){
-                // Mise en forme : Majuscule en début, reste en minuscules
+                // Mise en forme
                 n = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
                 
-                // Attribution de la zone automatique
-                const zoneAuto = AttribuerZoneAuto(n);
+                // SI aucune zone n'a été donnée (l est vide), on déclenche l'automatique
+                if (l === ""){
+                    l = AttribuerZoneAuto(n);
+                }
 
                 db.ref('fournitures').push({ 
-                    n: n, q: q, s: s, c: c, l: zoneAuto, secret: monSecret 
+                    n: n, q: q, s: s, c: c, l: l, secret: monSecret 
                 });
 
+                // Reset
                 nomInput.value = ""; 
                 qteInput.value = ""; 
                 seuilInput.value = "";
+                btnLoc.innerText = "Pos";
+                btnLoc.style.color = "#aaa"; 
+                btnLoc.style.borderColor = "#ccc";
                 nomInput.blur();
             }
         }
@@ -502,11 +553,101 @@
             document.getElementById('btnPlan').className = isStock ? "" : "onglet-active";
         }
 
-        function ChangerZoneManuel (id, zoneActuelle){
-            const nouvelleZone = prompt("Nouvel emplacement (ex: A1, B3...) :", zoneActuelle);
-            if (nouvelleZone != null && nouvelleZone != ""){
-                db.ref('fournitures/' + id).update({ l: nouvelleZone.toUpperCase() });
-            }
+        function ChangerZoneManuel(id, zoneActuelle){
+            // 1. Créer un voile sombre en arrière-plan
+            const overlay = document.createElement("div");
+            overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;";
+            
+            // 2. Créer le menu de sélection
+            const menu = document.createElement("div");
+            menu.style = "background:white; padding:15px; border-radius:12px; width:100%; max-width:300px; text-align:center;";
+            menu.innerHTML = "<h3 style='margin-top:0; font-size:16px;'>Choisir une Zone</h3>";
+
+            const grille = document.createElement("div");
+            grille.style = "display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:15px;";
+
+            const zones = [
+                "A1","A2","A3","A4",
+                "B1","B2","B3","B4",
+                "C1","C2","C3","C4",
+                "D1","D2","D3","D4"
+            ];
+
+            zones.forEach(z => {
+                const btn = document.createElement("button");
+                btn.innerText = z;
+                btn.style = `padding:10px 5px; border:1px solid #ccc; border-radius:6px; background:${z === zoneActuelle ? '#4CAF50' : '#f9f9f9'}; color:${z === zoneActuelle ? 'white' : '#333'}; font-weight:bold; cursor:pointer;`;
+                
+                btn.onclick = () => {
+                    if (z !== zoneActuelle){
+                        db.ref('fournitures/' + id).update({ l: z });
+                    }
+                    document.body.removeChild(overlay);
+                };
+                grille.appendChild(btn);
+            });
+
+            menu.appendChild(grille);
+
+            // Bouton Annuler
+            const btnAnnuler = document.createElement("button");
+            btnAnnuler.innerText = "Annuler";
+            btnAnnuler.style = "width:100%; padding:10px; border:none; background:#eee; border-radius:6px; cursor:pointer;";
+            btnAnnuler.onclick = () => document.body.removeChild(overlay);
+            menu.appendChild(btnAnnuler);
+
+            overlay.appendChild(menu);
+            document.body.appendChild(overlay);
+        }
+
+        function OuvrirGrilleAjout(){
+            const btnLoc = document.getElementById('locInputBtn');
+            const zoneActuelle = btnLoc.innerText;
+
+            const overlay = document.createElement("div");
+            overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2000; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;";
+            
+            const menu = document.createElement("div");
+            menu.style = "background:white; padding:15px; border-radius:12px; width:100%; max-width:300px; text-align:center;";
+            menu.innerHTML = "<h3 style='margin-top:0; font-size:16px;'>Position de la fourniture</h3>";
+
+            const grille = document.createElement("div");
+            grille.style = "display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:15px;";
+
+            const zones = ["A1","A2","A3","A4","B1","B2","B3","B4","C1","C2","C3","C4","D1","D2","D3","D4"];
+
+            zones.forEach(z => {
+                const btn = document.createElement("button");
+                btn.innerText = z;
+                btn.style = `padding:10px 5px; border:1px solid #ccc; border-radius:6px; background:${z === zoneActuelle ? '#4CAF50' : '#f9f9f9'}; color:${z === zoneActuelle ? 'white' : '#333'}; font-weight:bold; cursor:pointer;`;
+                
+                btn.onclick = () => {
+                    btnLoc.innerText = z; 
+                    btnLoc.style.color = "#333"; 
+                    btnLoc.style.borderColor = "#4CAF50"; 
+                    document.body.removeChild(overlay);
+                };
+                grille.appendChild(btn);
+            });
+
+            menu.appendChild(grille);
+
+            // Bouton Annuler avec RESET
+            const btnAnnuler = document.createElement("button");
+            btnAnnuler.innerText = "Annuler";
+            btnAnnuler.style = "width:100%; padding:10px; border:none; background:#eee; border-radius:6px; cursor:pointer; font-weight:bold; color:#666;";
+            
+            btnAnnuler.onclick = () => {
+                // RESET du bouton principal
+                btnLoc.innerText = "Pos";
+                btnLoc.style.color = "#aaa"; 
+                btnLoc.style.borderColor = "#ccc";
+                document.body.removeChild(overlay);
+            };
+
+            menu.appendChild(btnAnnuler);
+            overlay.appendChild(menu);
+            document.body.appendChild(overlay);
         }
 
         function AttribuerZoneAuto (nom){ // doit trigger que si aucune zone n'a été donnée
@@ -574,24 +715,31 @@
         }
 
         function OuvrirPlanZone(localisation){
-            if (!localisation) return;
+            if (!localisation || localisation.length < 2) return;
             
-            const lettre = localisation.charAt(0).toUpperCase();
+            const lettre = localisation.charAt(0).toUpperCase(); // A, B, C ou D
+            const niveau = parseInt(localisation.charAt(1));    // 1, 2, 3 ou 4
             const index = lettre.charCodeAt(0) - 65; 
 
-            // 1. On affiche l'onglet d'abord pour que le slider ait une largeur calculable
             ChangerOnglet('plan');
 
-            // 2. On attend le prochain cycle de rendu (très rapide) pour scroller
             requestAnimationFrame(() => {
                 const slider = document.getElementById('planSlider');
                 if (slider){
                     const largeur = slider.clientWidth;
-                    if (largeur > 0){
-                        slider.scrollTo({
-                            left: index * largeur,
-                            behavior: 'auto' // 'auto' pour que ce soit instantané dès l'ouverture
-                        });
+                    slider.scrollTo({ left: index * largeur, behavior: 'auto' });
+
+                    // --- GESTION DE LA SURBRILLANCE ---
+                    const flash = document.getElementById('flash-' + lettre);
+                    if (flash && niveau >= 1 && niveau <= 4) {
+                        // Positionnement : 1 est en bas (75%), 4 est en haut (0%)
+                        const positions = { 1: "75%", 2: "50%", 3: "25%", 4: "0%" };
+                        flash.style.top = positions[niveau];
+                        
+                        // Relancer l'animation
+                        flash.classList.remove('active');
+                        void flash.offsetWidth; // Force le redessin pour rejouer l'animation
+                        flash.classList.add('active');
                     }
                 }
             });
