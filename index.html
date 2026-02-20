@@ -165,6 +165,10 @@
             scrollbar-width: none;
             -webkit-overflow-scrolling: touch; /* Défilement fluide iOS */
             scroll-behavior: smooth;
+            scroll-snap-align: center; /* L'image se cale pile au milieu du doigt */
+            scroll-snap-stop: always;  /* Force l'arrêt sur chaque image, même si on swipe fort */
+            flex-shrink: 0;
+            width: 100%;               /* Une image prend tout l'écran */
         }
         .zone-slider::-webkit-scrollbar{ display: none; }
 
