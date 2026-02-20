@@ -155,22 +155,28 @@
             filter: grayscale(0);
         }
         
-        /* Slider horizontal corrigé */
-        .zone-slider{
+       /* LE CONTENEUR (Le rail) */
+        .zone-slider {
             display: flex;
             overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            gap: 0; /* Pas d'espace pour le 100% */
-            padding: 10px 0;
+            scroll-snap-type: x mandatory; /* On active le mode aimant */
+            gap: 0;
+            padding: 0;
             scrollbar-width: none;
-            -webkit-overflow-scrolling: touch; /* Défilement fluide iOS */
+            -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
-            scroll-snap-align: center; /* L'image se cale pile au milieu du doigt */
-            scroll-snap-stop: always;  /* Force l'arrêt sur chaque image, même si on swipe fort */
-            flex-shrink: 0;
-            width: 100%;               /* Une image prend tout l'écran */
         }
-        .zone-slider::-webkit-scrollbar{ display: none; }
+
+        /* L'IMAGE (Le frein) */
+        .zone-slider img {
+            flex-shrink: 0;
+            width: 100%;
+            /* C'est ICI que ça se joue pour la vitesse : */
+            scroll-snap-align: center; 
+            scroll-snap-stop: always; /* Force l'arrêt image par image */
+        }
+
+        .zone-slider::-webkit-scrollbar { display: none; }
 
         .zone-item{
             flex: 0 0 100%; /* Prend toute la largeur, une par une */
