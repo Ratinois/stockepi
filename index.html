@@ -155,11 +155,11 @@
             filter: grayscale(0);
         }
         
-       /* LE CONTENEUR (Le rail) */
+      /* 1. Le conteneur (ne change pas) */
         .zone-slider {
             display: flex;
             overflow-x: auto;
-            scroll-snap-type: x mandatory; /* On active le mode aimant */
+            scroll-snap-type: x mandatory; 
             gap: 0;
             padding: 0;
             scrollbar-width: none;
@@ -167,13 +167,18 @@
             scroll-behavior: smooth;
         }
 
-        /* L'IMAGE (Le frein) */
-        .zone-slider img {
+        /* 2. C'est ICI qu'il faut mettre le frein (sur zone-item) */
+        .zone-item {
             flex-shrink: 0;
             width: 100%;
-            /* C'est ICI que ça se joue pour la vitesse : */
             scroll-snap-align: center; 
-            scroll-snap-stop: always; /* Force l'arrêt image par image */
+            scroll-snap-stop: always; /* Force l'arrêt à chaque zone */
+        }
+
+        /* 3. L'image doit juste suivre la taille */
+        .zone-item img {
+            width: 100%;
+            display: block;
         }
 
         .zone-slider::-webkit-scrollbar { display: none; }
