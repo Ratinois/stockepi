@@ -61,6 +61,34 @@
             .zone-filtres button span{ display: none; }
             .btn-vais::after, .btn-ling::after, .btn-meub::after, .btn-div::after{ content: '' !important; }
             .zone-filtres button{ font-size: 20px; padding: 10px 0; }
+
+            /* Cache les boutons +/- 5 */
+            .btn-5 {
+                display: none !important;
+            }
+
+            /* Transforme les boutons +/- 1 en + et - */
+            .btn-1 {
+                font-size: 0 !important; /* Cache le texte "+1" ou "-1" */
+                width: 30px !important;
+                min-width: 30px !important;
+            }
+
+            .btn-1[onclick*="-1"]::before {
+                content: "-";
+                font-size: 16px;
+            }
+
+            .btn-1[onclick*=" 1"]::before { /* Note l'espace avant le 1 pour cibler le +1 */
+                content: "+";
+                font-size: 16px;
+            }
+            
+            /* On donne un peu plus de place au nom maintenant */
+            .nom-objet {
+                max-width: 50%;
+            }
+            
         }
 
         @media (min-width: 768px) {
@@ -357,11 +385,11 @@
                         ${iconeAlerte}
                     </div>
                     <div class="controles">
-                        <button class="ctrl-btn" onclick="ChangerQuantite('${f.id}', -5)">-5</button>
-                        <button class="ctrl-btn" onclick="ChangerQuantite('${f.id}', -1)">-1</button>
+                        <button class="ctrl-btn btn-5" onclick="ChangerQuantite('${f.id}', -5)">-5</button>
+                        <button class="ctrl-btn btn-1" onclick="ChangerQuantite('${f.id}', -1)">-1</button>
                         <span class="badge">${f.q}</span>
-                        <button class="ctrl-btn" onclick="ChangerQuantite('${f.id}', 1)">+1</button>
-                        <button class="ctrl-btn" onclick="ChangerQuantite('${f.id}', 5)">+5</button>
+                        <button class="ctrl-btn btn-1" onclick="ChangerQuantite('${f.id}', 1)">+1</button>
+                        <button class="ctrl-btn btn-5" onclick="ChangerQuantite('${f.id}', 5)">+5</button>
                         <button class="btn-poubelle" onclick="SupprimerFourniture('${f.id}', '${f.n}')">🗑️</button>
                     </div>`;
                 conteneur.appendChild(div);
