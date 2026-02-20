@@ -91,6 +91,7 @@
                 flex: 1;
                 min-width: 0; /* Important pour que le texte se coupe avec ... */
                 overflow: hidden;
+                font-size: 13px !important;
             }
 
             /* Le texte du nom prend tout l'espace libre */
@@ -99,12 +100,14 @@
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                margin-right: 5px;
+                margin-right: 4px;
             }
 
             /* On s'assure que les badges ne rétrécissent pas */
             .badge-zone, .btn-voir-plan {
                 flex-shrink: 0;
+                font-size: 10px; /* On réduit aussi un peu les badges pour gagner de la place */
+                padding: 1px 4px;
             }
             
         }
