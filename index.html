@@ -688,33 +688,41 @@
             const slider = document.getElementById('planSlider');
 
             if (slider){
-                // 1. On affiche l'onglet d'abord (obligatoire pour avoir la largeur)
+                // 1. On cache le contenu du slider pour que le défilement soit invisible
+                slider.style.opacity = "0";
+                
+                // 2. On affiche l'onglet
                 ChangerOnglet('plan');
 
-                // 2. On utilise setTimeout pour laisser le temps au navigateur de calculer la largeur
                 setTimeout(() => {
                     const largeur = slider.clientWidth;
                     
-                    // 3. On coupe temporairement l'animation pour que ce soit instantané
+                    // 3. On coupe tout ce qui peut créer une animation
                     slider.style.scrollBehavior = "auto";
                     slider.style.scrollSnapType = "none";
                     
+                    // 4. On déplace
                     slider.scrollLeft = index * largeur;
 
-                    // 4. On lance le flash
+                    // 5. On prépare le flash
                     const flash = document.getElementById('flash-' + lettre);
                     if (flash && niveau >= 1 && niveau <= 4){
                         const positions = { 1: "75%", 2: "50%", 3: "25%", 4: "0%" };
                         flash.style.top = positions[niveau];
-                        
                         flash.classList.remove('active');
-                        void flash.offsetWidth; 
-                        flash.classList.add('active');
                     }
 
-                    // 5. On remet le snap pour l'utilisateur
-                    slider.style.scrollSnapType = "x mandatory";
-                }, 10); // 10ms suffisent pour que clientWidth soit calculé
+                    // 6. On ré-affiche et on lance le flash
+                    requestAnimationFrame(() => {
+                        slider.style.opacity = "1"; // On remonte le rideau
+                        if (flash) {
+                            void flash.offsetWidth;
+                            flash.classList.add('active');
+                        }
+                        slider.style.scrollSnapType = "x mandatory";
+                    });
+                    
+                }, 30); // Un peu plus long pour être sûr que le rendu a commencé
             }
         }
 
