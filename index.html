@@ -688,17 +688,20 @@
             const slider = document.getElementById('planSlider');
 
             if (slider){
-                // 1. On pré-positionne le slider AVANT d'afficher l'onglet
-                // On coupe le snap pour que le déplacement soit immédiat
-                slider.style.scrollSnapType = "none";
-                const largeur = slider.clientWidth;
-                slider.scrollLeft = index * largeur;
-
-                // 2. Maintenant on affiche l'onglet (il sera déjà sur la bonne image)
+                // 1. On affiche l'onglet d'abord (obligatoire pour avoir la largeur)
                 ChangerOnglet('plan');
 
-                // 3. On gère le flash et on remet le snap
-                requestAnimationFrame(() => {
+                // 2. On utilise setTimeout pour laisser le temps au navigateur de calculer la largeur
+                setTimeout(() => {
+                    const largeur = slider.clientWidth;
+                    
+                    // 3. On coupe temporairement l'animation pour que ce soit instantané
+                    slider.style.scrollBehavior = "auto";
+                    slider.style.scrollSnapType = "none";
+                    
+                    slider.scrollLeft = index * largeur;
+
+                    // 4. On lance le flash
                     const flash = document.getElementById('flash-' + lettre);
                     if (flash && niveau >= 1 && niveau <= 4){
                         const positions = { 1: "75%", 2: "50%", 3: "25%", 4: "0%" };
@@ -708,9 +711,10 @@
                         void flash.offsetWidth; 
                         flash.classList.add('active');
                     }
-                    // On remet le snap pour que l'utilisateur puisse scroller normalement après
+
+                    // 5. On remet le snap pour l'utilisateur
                     slider.style.scrollSnapType = "x mandatory";
-                });
+                }, 10); // 10ms suffisent pour que clientWidth soit calculé
             }
         }
 
