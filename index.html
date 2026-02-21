@@ -620,10 +620,16 @@
             AfficherInterface(dernieresDonneesRecues);
         }
 
-        function ChangerOnglet(nom){
+        function ChangerOnglet (nom){
             // Nettoyage préventif : on retire l'animation de tous les overlays
             const tousLesFlashs = document.querySelectorAll('.highlight-overlay');
             tousLesFlashs.forEach(f => f.classList.remove('active'));
+
+            // On cache le highlight du plan global par défaut pour éviter l'affichage résiduel
+            const hb = document.getElementById("highlightBox");
+            if (hb){
+                hb.style.display = "none";
+            }
 
             const isStock = (nom == "stock");
             document.getElementById('section-stock').style.display = isStock ? "block" : "none";
@@ -798,14 +804,15 @@
             if (!localisation || localisation.length < 2) return;
 
             window.scrollTo(0, 0);
+            
+            // 1. On change d'onglet (ceci va cacher tous les flashs via la modif ci-dessus)
             ChangerOnglet('plan'); 
             
             const lettre = localisation.charAt(0).toUpperCase();
             const niveau = parseInt(localisation.charAt(1));
             dernierIndex = lettre.charCodeAt(0) - 65; 
 
-            // 1. On prépare le slider (même s'il est caché)
-            document.querySelectorAll('.highlight-overlay').forEach(el => el.classList.remove('active'));
+            // 2. On affiche le flash du slider
             const flash = document.getElementById('flash-' + lettre);
             if (flash && niveau >= 1 && niveau <= 4){
                 const positions = { 1: "75%", 2: "50%", 3: "25%", 4: "0%" };
@@ -815,7 +822,7 @@
             }
             ActualiserPositionSlider();
 
-            // 2. Mise à jour Plan Global
+            // 3. On affiche le flash du plan Global
             const highlight = document.getElementById("highlightBox");
             const xCoords = { 'A': '0%', 'B': '25%', 'C': '50%', 'D': '75%' };
             const yCoords = { 4: '0%', 3: '25%', 2: '50%', 1: '75%' };
@@ -823,7 +830,7 @@
             if (xCoords[lettre] != undefined && yCoords[niveau] != undefined){
                 highlight.style.left = xCoords[lettre];
                 highlight.style.top = yCoords[niveau];
-                highlight.style.display = "block";
+                highlight.style.display = "block"; // On le réaffiche ici car ChangerOnglet l'a caché
                 highlight.classList.remove('active');
                 void highlight.offsetWidth;
                 highlight.classList.add('active');
