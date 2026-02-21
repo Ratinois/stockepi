@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Inventaire Stock</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
@@ -276,7 +276,7 @@
 
     <div class="onglets">
         <button id="btnStock" class="onglet-active" onclick="ChangerOnglet('stock')">📦 Stock</button>
-        <button id="btnPlan" onclick="ChangerOnglet('plan')">📍 Plan</button>
+        <button id="btnPlan" onclick="ChangerOnglet('plan')">🗺️ Plan</button>
     </div>
     
     <div id="section-plan" style="display:none; margin-top:10px;">
@@ -345,10 +345,10 @@
             </div>
 
             <div class="champ-groupe cg-loc">
-                <label>Loc.</label>
+                <label>Pos</label>
                 <button type="button" id="locInputBtn" class="input-nombre" 
                         style="width:100%; height:35px; background:white; border:1px solid #ccc; border-radius:4px; font-weight:bold; color:#666;"
-                        onclick="OuvrirGrilleAjout()">Pos</button>
+                        onclick="OuvrirGrilleAjout()">📍</button>
             </div>
             
             <div class="champ-groupe cg-btn">
@@ -496,7 +496,7 @@
             let s = parseInt(seuilInput.value) || 0;
             
             // On vérifie d'abord si l'utilisateur a choisi une zone manuellement
-            let l = (btnLoc.innerText === "Pos") ? "" : btnLoc.innerText;
+            let l = (btnLoc.innerText === "📍") ? "" : btnLoc.innerText;
 
             if (n != ""){
                 // Mise en forme
@@ -515,7 +515,7 @@
                 nomInput.value = ""; 
                 qteInput.value = ""; 
                 seuilInput.value = "";
-                btnLoc.innerText = "Pos";
+                btnLoc.innerText = "📍";
                 btnLoc.style.color = "#aaa"; 
                 btnLoc.style.borderColor = "#ccc";
                 nomInput.blur();
@@ -652,7 +652,7 @@
             
             btnAnnuler.onclick = () => {
                 // RESET du bouton principal
-                btnLoc.innerText = "Pos";
+                btnLoc.innerText = "📍";
                 btnLoc.style.color = "#aaa"; 
                 btnLoc.style.borderColor = "#ccc";
                 document.body.removeChild(overlay);
