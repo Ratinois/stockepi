@@ -264,6 +264,55 @@
             animation: flashEffect 1s ease-out;
         }
 
+        /* Le conteneur de ton plan doit être en position: relative */
+        .plan-container{
+            position: relative;
+            display: inline-block;
+        }
+
+        #plan-image{
+            display: block;
+            width: 100%; /* S'adapte à l'écran du tel */
+            height: auto;
+        }
+
+        .highlight-box{
+            position: absolute;
+            width: 25%;  /* 1 colonne sur 4 */
+            height: 25%; /* 1 niveau sur 4 */
+            background: rgba(255, 255, 0, 0.4); /* Jaune transparent */
+            border: 3px solid yellow;
+            box-sizing: border-box;
+            pointer-events: none;
+            display: none; /* Caché par défaut */
+            z-index: 10;
+        }
+
+        .highlight-box.active{
+            animation: flashEffect 1s ease-out;
+        }
+
+        .grille-globale-labels{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            pointer-events: none; /* Pour ne pas gêner le clic */
+        }
+
+        .label-cell{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.3); /* Blanc très discret */
+            font-size: 10px;
+            font-weight: bold;
+        }
+
         @keyframes flashEffect {
             0% { opacity: 0; }
             30% { opacity: 1; background: rgba(255, 255, 255, 0.6); }
@@ -280,7 +329,13 @@
     </div>
     
     <div id="section-plan" style="display:none; margin-top:10px;">
-        <div class="conteneur-slider">
+    
+        <div style="display:flex; gap:5px; margin-bottom:10px;">
+            <button id="btnVueSlider" onclick="ChangerTypePlan('slider')" style="flex:1; padding:10px; border:none; border-radius:6px; font-weight:bold; background:#0288d1; color:white; cursor:pointer;">Plan Détaillé</button>
+            <button id="btnVueGlobal" onclick="ChangerTypePlan('global')" style="flex:1; padding:10px; border:none; border-radius:6px; font-weight:bold; background:#ddd; color:#333; cursor:pointer;">Plan Global</button>
+        </div>
+    
+        <div id="vue-plan-slider" class="conteneur-slider">
             <button class="btn-nav btn-prev" onclick="SliderNav(-1)">❮</button>
             <button class="btn-nav btn-next" onclick="SliderNav(1)">❯</button>
             
@@ -292,7 +347,6 @@
                         <div class="grille-niveaux"><span>A4</span><span>A3</span><span>A2</span><span>A1</span></div>
                     </div>
                 </div>
-
                 <div class="zone-item">
                     <div class="cadre-photo" id="container-B">
                         <div class="highlight-overlay" id="flash-B"></div> <div class="label-zone">ZONE B (Vaisselle/Divers)</div>
@@ -300,7 +354,6 @@
                         <div class="grille-niveaux"><span>B4</span><span>B3</span><span>B2</span><span>B1</span></div>
                     </div>
                 </div>
-                
                 <div class="zone-item">
                     <div class="cadre-photo" id="container-C">
                         <div class="highlight-overlay" id="flash-C"></div> <div class="label-zone">ZONE C (Linge)</div>
@@ -308,7 +361,6 @@
                         <div class="grille-niveaux"><span>C4</span><span>C3</span><span>C2</span><span>C1</span></div>
                     </div>
                 </div>
-
                 <div class="zone-item">
                     <div class="cadre-photo" id="container-D">
                         <div class="highlight-overlay" id="flash-D"></div> <div class="label-zone">ZONE D (Linge/Divers)</div>
@@ -318,6 +370,22 @@
                 </div>
             </div>
         </div>
+    
+        <div id="vue-plan-global" style="display:none; text-align:center;">
+            <div class="plan-container" style="width:100%; position:relative; display:inline-block;">
+                <img src="plan_global.jpg" id="plan-image" style="width:100%; display:block; border-radius:8px;">
+                
+                <div class="grille-globale-labels">
+                    <div class="label-cell">A4</div><div class="label-cell">B4</div><div class="label-cell">C4</div><div class="label-cell">D4</div>
+                    <div class="label-cell">A3</div><div class="label-cell">B3</div><div class="label-cell">C3</div><div class="label-cell">D3</div>
+                    <div class="label-cell">A2</div><div class="label-cell">B2</div><div class="label-cell">C2</div><div class="label-cell">D2</div>
+                    <div class="label-cell">A1</div><div class="label-cell">B1</div><div class="label-cell">C1</div><div class="label-cell">D1</div>
+                </div>
+        
+                <div id="highlightBox" class="highlight-box"></div>
+            </div>
+        </div>
+    
     </div>
 
     <div id="section-stock">
@@ -692,52 +760,73 @@
             }
         });
 
-        function OuvrirPlanZone(localisation){
+        let dernierIndex = 0;
+
+        function ChangerTypePlan (type){
+            typePlanActif = type;
+            const btnSlider = document.getElementById('btnVueSlider');
+            const btnGlobal = document.getElementById('btnVueGlobal');
+            const vueSlider = document.getElementById('vue-plan-slider');
+            const vueGlobal = document.getElementById('vue-plan-global');
+
+            if (type == "slider"){
+                btnSlider.style.background = "#0288d1"; btnSlider.style.color = "white";
+                btnGlobal.style.background = "#ddd"; btnGlobal.style.color = "#333";
+                vueSlider.style.display = "block";
+                vueGlobal.style.display = "none";
+                // Correction du bug : on force le scroll maintenant que c'est visible
+                ActualiserPositionSlider();
+            } else {
+                btnGlobal.style.background = "#0288d1"; btnGlobal.style.color = "white";
+                btnSlider.style.background = "#ddd"; btnSlider.style.color = "#333";
+                vueGlobal.style.display = "block";
+                vueSlider.style.display = "none";
+            }
+        }
+
+        function ActualiserPositionSlider(){
+            const slider = document.getElementById('planSlider');
+            if (slider && slider.clientWidth > 0){
+                const largeur = slider.clientWidth;
+                slider.style.scrollBehavior = "auto";
+                slider.scrollLeft = dernierIndex * largeur;
+                slider.style.scrollBehavior = "smooth";
+            }
+        }
+
+        function OuvrirPlanZone (localisation){
             if (!localisation || localisation.length < 2) return;
 
             window.scrollTo(0, 0);
+            ChangerOnglet('plan'); 
             
             const lettre = localisation.charAt(0).toUpperCase();
             const niveau = parseInt(localisation.charAt(1));
-            const index = lettre.charCodeAt(0) - 65; 
-            const slider = document.getElementById('planSlider');
+            dernierIndex = lettre.charCodeAt(0) - 65; 
 
-            if (slider){
-                // 1. On cache le contenu du slider pour que le défilement soit invisible
-                slider.style.opacity = "0";
-                
-                // 2. On affiche l'onglet
-                ChangerOnglet('plan');
+            // 1. On prépare le slider (même s'il est caché)
+            document.querySelectorAll('.highlight-overlay').forEach(el => el.classList.remove('active'));
+            const flash = document.getElementById('flash-' + lettre);
+            if (flash && niveau >= 1 && niveau <= 4){
+                const positions = { 1: "75%", 2: "50%", 3: "25%", 4: "0%" };
+                flash.style.top = positions[niveau];
+                void flash.offsetWidth;
+                flash.classList.add('active');
+            }
+            ActualiserPositionSlider();
 
-                setTimeout(() => {
-                    const largeur = slider.clientWidth;
-                    
-                    // 3. On coupe tout ce qui peut créer une animation
-                    slider.style.scrollBehavior = "auto";
-                    slider.style.scrollSnapType = "none";
-                    
-                    // 4. On déplace
-                    slider.scrollLeft = index * largeur;
+            // 2. Mise à jour Plan Global
+            const highlight = document.getElementById("highlightBox");
+            const xCoords = { 'A': '0%', 'B': '25%', 'C': '50%', 'D': '75%' };
+            const yCoords = { 4: '0%', 3: '25%', 2: '50%', 1: '75%' };
 
-                    // 5. On prépare le flash
-                    const flash = document.getElementById('flash-' + lettre);
-                    if (flash && niveau >= 1 && niveau <= 4){
-                        const positions = { 1: "75%", 2: "50%", 3: "25%", 4: "0%" };
-                        flash.style.top = positions[niveau];
-                        flash.classList.remove('active');
-                    }
-
-                    // 6. On ré-affiche et on lance le flash
-                    requestAnimationFrame(() => {
-                        slider.style.opacity = "1"; // On remonte le rideau
-                        if (flash) {
-                            void flash.offsetWidth;
-                            flash.classList.add('active');
-                        }
-                        slider.style.scrollSnapType = "x mandatory";
-                    });
-                    
-                }, 30); // Un peu plus long pour être sûr que le rendu a commencé
+            if (xCoords[lettre] != undefined && yCoords[niveau] != undefined){
+                highlight.style.left = xCoords[lettre];
+                highlight.style.top = yCoords[niveau];
+                highlight.style.display = "block";
+                highlight.classList.remove('active');
+                void highlight.offsetWidth;
+                highlight.classList.add('active');
             }
         }
 
@@ -745,6 +834,39 @@
             dernieresDonneesRecues = snap.val();
             AfficherInterface(dernieresDonneesRecues);
         });
+
+        function MontrerEmplacement (localisation){
+            if (!localisation || localisation.length < 2){
+                return;
+            }
+
+            const zone = localisation[0].toUpperCase(); // A, B, C ou D
+            const niveau = parseInt(localisation[1]); // 1, 2, 3 ou 4
+            const highlight = document.getElementById("highlightBox");
+
+            // Calcul de la position horizontale (Colonnes)
+            const xCoords = {
+                'A': '0%',
+                'B': '25%',
+                'C': '50%',
+                'D': '75%'
+            };
+
+            // Calcul de la position verticale (Niveaux)
+            // Le niveau 4 est en haut (0%), le niveau 1 est en bas (75%)
+            const yCoords = {
+                4: '0%',
+                3: '25%',
+                2: '50%',
+                1: '75%'
+            };
+
+            if (xCoords[zone] != undefined && yCoords[niveau] != undefined){
+                highlight.style.left = xCoords[zone];
+                highlight.style.top = yCoords[niveau];
+                highlight.style.display = "block";
+            }
+        }
 
         function SauvegarderBDD(){
             db.ref('fournitures').once('value').then((snap) => {
