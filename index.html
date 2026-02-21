@@ -447,19 +447,28 @@
             tableauTrie.forEach((f) => {
                 const catReelle = AttribuerCategorieAuto(f.n, f.c);
                 if (filtreActuel !== "Tous" && catReelle !== filtreActuel) return;
+                
                 const seuilVrai = f.s || 0;
                 const estEnAlerte = (seuilVrai > 0 && f.q < seuilVrai);
                 const loc = f.l || "A1";
+
+                // --- CALCUL DU MANQUANT ---
+                let texteAlerte = "";
+                if (estEnAlerte){
+                    const manquant = seuilVrai - f.q;
+                    texteAlerte = `<span class="alerte-info" style="color:#d32f2f; font-weight:bold; margin-left:5px;">⚠️ (-${manquant})</span>`;
+                }
+
                 const div = document.createElement('div');
                 div.className = "carte-objet";
                 if (estEnAlerte){ div.style.background = "#ffebee"; div.style.borderColor = "#ef9a9a"; }
-                const iconeAlerte = estEnAlerte ? `<span class="alerte-icone">⚠️</span>` : "";
+
                 div.innerHTML = `
                     <div class="nom-objet">
                         <span onclick="ModifierSeuil('${f.id}', ${seuilVrai})" style="cursor:help">${getEmoji(f.n)}${f.n}</span>
                         <span class="badge-zone" onclick="ChangerZoneManuel('${f.id}', '${loc}')">📍 ${loc}</span>
                         <span onclick="OuvrirPlanZone('${loc}')" style="cursor:pointer; margin-left:8px;">🔍</span>
-                        ${iconeAlerte}
+                        ${texteAlerte}
                     </div>
                     <div class="controles">
                         <button class="ctrl-btn btn-5" onclick="ChangerQuantite('${f.id}', -5)">-5</button>
@@ -543,7 +552,11 @@
             AfficherInterface(dernieresDonneesRecues);
         }
 
-        function ChangerOnglet (nom){
+        function ChangerOnglet(nom){
+            // Nettoyage préventif : on retire l'animation de tous les overlays
+            const tousLesFlashs = document.querySelectorAll('.highlight-overlay');
+            tousLesFlashs.forEach(f => f.classList.remove('active'));
+
             const isStock = (nom == "stock");
             document.getElementById('section-stock').style.display = isStock ? "block" : "none";
             document.getElementById('formulaire-ajout').style.display = isStock ? "flex" : "none";
@@ -681,6 +694,8 @@
 
         function OuvrirPlanZone(localisation){
             if (!localisation || localisation.length < 2) return;
+
+            window.scrollTo(0, 0);
             
             const lettre = localisation.charAt(0).toUpperCase();
             const niveau = parseInt(localisation.charAt(1));
