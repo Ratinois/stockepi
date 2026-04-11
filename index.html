@@ -591,6 +591,8 @@
         }
 
         function ChangerQuantite (id, delta){
+            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
+            
             db.ref('fournitures/' + id).once('value').then((snap) => {
                 let nv = (snap.val().q || 0) + delta;
                 if (nv < 0) nv = 0;
@@ -599,6 +601,8 @@
         }
 
         function ModifierSeuil (id, actuelSeuil){
+            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
+
             const nouveauSeuil = prompt("Nouveau seuil d'alerte :", actuelSeuil);
             if (nouveauSeuil != null){
                 const s = parseInt(nouveauSeuil);
@@ -607,7 +611,11 @@
         }
 
         function SupprimerFourniture (id, nom){
-            if (confirm("Supprimer '" + nom + "' ?")) db.ref('fournitures/' + id).remove();
+            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
+
+            if (confirm("Supprimer '" + nom + "' ?")){
+                db.ref('fournitures/' + id).remove();
+            }
         }
 
         function ChangerFiltre (nouvelleCategorie){
@@ -641,6 +649,8 @@
         }
 
         function ChangerZoneManuel(id, zoneActuelle){
+            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
+
             // 1. Créer un voile sombre en arrière-plan
             const overlay = document.createElement("div");
             overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;";
