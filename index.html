@@ -628,7 +628,7 @@
             if (confirm("Supprimer '" + nom + "' ?")){
                 let maj = {};
                 maj[id] = null;
-                maj['/secret_validation'] = monSecret;
+                maj['/secret'] = monSecret;
 
                 db.ref().update(maj).catch((error) => {
                     alert("Accès refusé : code secret incorrect.");
