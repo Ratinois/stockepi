@@ -592,22 +592,22 @@
             }
         }
 
-        function ChangerQuantite(id, delta){
+        public function ChangerQuantite(id, delta){
             db.ref('fournitures/' + id).once('value').then((snap) => {
-                const article = snap.val();
-                let nv = (article.q || 0) + delta;
-                if (nv < 0) nv = 0;
+                const item = snap.val();
+                let nv = (item.q || 0) + delta;
+                if (nv < 0){
+                    nv = 0;
+                }
 
-                // On reconstruit l'objet complet pour le .set
-                // Cela garantit que la règle newData.child('secret') est testée sur l'objet entier
-                const articleMisAJour = {
-                    ...article,
+                // On prépare l'objet complet avec le secret
+                // Si monSecret n'est pas "4444", l'écriture sera REJETÉE par Firebase
+                db.ref('fournitures/' + id).update({
                     q: nv,
-                    secret: monSecret // On injecte le secret ici
-                };
-
-                db.ref('fournitures/' + id).set(articleMisAJour).catch((error) => {
-                    alert("Sécurité : Modification refusée.");
+                    secret: monSecret
+                }).catch((error) => {
+                    // C'est ici que le blocage est géré
+                    alert("Erreur : Code secret incorrect. Modification annulée.");
                 });
             });
         }
