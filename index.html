@@ -626,12 +626,11 @@
 
         function SupprimerFourniture(id, nom){
             if (confirm("Supprimer '" + nom + "' ?")){
-                // On crée un objet de mise à jour
-                // On met l'item à null pour le supprimer
-                // ET on passe le secret pour valider l'autorisation
-                db.ref('fournitures/' + id).remove();
+                let maj = {};
+                maj[id] = null;
+                maj['/secret_validation'] = monSecret;
 
-                db.ref('fournitures').update(maj).catch((error) => {
+                db.ref().update(maj).catch((error) => {
                     alert("Accès refusé : code secret incorrect.");
                 });
             }
