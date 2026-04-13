@@ -600,15 +600,17 @@
                     nv = 0;
                 }
 
-                // On prépare l'objet complet avec le secret
-                // Si monSecret n'est pas "4444", l'écriture sera REJETÉE par Firebase
-                db.ref('fournitures/' + id).update({
-                    q: nv,
-                    secret: monSecret
-                }).catch((error) => {
-                    // C'est ici que le blocage est géré
-                    alert("Erreur : Code secret incorrect. Modification annulée.");
-                });
+                if (item.secret === monSecret){
+                    // On prépare l'objet complet avec le secret
+                    // Si monSecret n'est pas bon, l'écriture sera REJETÉE par Firebase
+                    db.ref('fournitures/' + id).update({
+                        q: nv,
+                        secret: monSecret
+                    }).catch((error) => {
+                        // C'est ici que le blocage est géré
+                        alert("Erreur : Code secret incorrect. Modification annulée.");
+                    });
+                }
             });
         }
 
