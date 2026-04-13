@@ -629,9 +629,7 @@
                 // On crée un objet de mise à jour
                 // On met l'item à null pour le supprimer
                 // ET on passe le secret pour valider l'autorisation
-                let maj = {};
-                maj[id] = null; 
-                maj['secret_validation'] = monSecret; // Un champ temporaire pour la règle
+                db.ref('fournitures/' + id).remove();
 
                 db.ref('fournitures').update(maj).catch((error) => {
                     alert("Accès refusé : code secret incorrect.");
