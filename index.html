@@ -594,15 +594,18 @@
 
         function ChangerQuantite (id, delta){
             db.ref('fournitures/' + id).once('value').then((snap) => {
-                let nv = (snap.val().q || 0) + delta;
+                const data = snap.val();
+                let nv = (data.q || 0) + delta;
                 if (nv < 0){
                     nv = 0;
                 }
 
-                // On tente la mise à jour en envoyant le secret stocké dans la variable
-                db.ref('fournitures/' + id).update({ q: nv, secret: monSecret }).catch((error) => {
-                    alert("Action impossible : code secret manquant ou incorrect.");
-                    console.error(error);
+                // Si monSecret est mauvais, le .catch s'exécutera
+                db.ref('fournitures/' + id).update({
+                    q: nv,
+                    secret: monSecret
+                }).catch((error) => {
+                    alert("Sécurité : Modification refusée par le serveur.");
                 });
             });
         }
