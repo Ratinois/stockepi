@@ -624,17 +624,16 @@
             }
         }
 
-        function SupprimerFourniture (id, nom){
+        function SupprimerFourniture(id, nom){
             if (confirm("Supprimer '" + nom + "' ?")){
-                // On utilise update pour passer l'objet à null tout en validant le secret
-                db.ref('fournitures/' + id).update({
-                    n: null,
-                    q: null,
-                    s: null,
-                    c: null,
-                    l: null,
-                    secret: monSecret
-                }).catch((error) => {
+                // On crée un objet de mise à jour
+                // On met l'item à null pour le supprimer
+                // ET on passe le secret pour valider l'autorisation
+                let maj = {};
+                maj[id] = null; 
+                maj['secret_validation'] = monSecret; // Un champ temporaire pour la règle
+
+                db.ref('fournitures').update(maj).catch((error) => {
                     alert("Accès refusé : code secret incorrect.");
                 });
             }
