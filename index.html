@@ -551,7 +551,6 @@
         }
 
         function CreerFourniture(){
-            if (monSecret == ""){ alert("Erreur."); return; }
             const nomInput = document.getElementById('nomInput');
             const qteInput = document.getElementById('qteInput');
             const seuilInput = document.getElementById('seuilInput');
@@ -562,58 +561,72 @@
             const c = catInput.value;
             let q = parseInt(qteInput.value) || 0;
             let s = parseInt(seuilInput.value) || 0;
-            
-            // On vérifie d'abord si l'utilisateur a choisi une zone manuellement
+
             let l = (btnLoc.innerText === "📍") ? "" : btnLoc.innerText;
 
             if (n != ""){
-                // Mise en forme
                 n = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
-                
-                // SI aucune zone n'a été donnée (l est vide), on déclenche l'automatique
+
                 if (l === ""){
                     l = AttribuerZoneAuto(n);
                 }
 
-                db.ref('fournitures').push({ 
-                    n: n, q: q, s: s, c: c, l: l, secret: monSecret 
+                db.ref('fournitures').push({
+                    n: n,
+                    q: q,
+                    s: s,
+                    c: c,
+                    l: l,
+                    secret: monSecret
+                }).then(() => {
+                    nomInput.value = "";
+                    qteInput.value = "";
+                    seuilInput.value = "";
+                    btnLoc.innerText = "📍";
+                    btnLoc.style.color = "#aaa";
+                    btnLoc.style.borderColor = "#ccc";
+                    nomInput.blur();
+                }).catch((error) => {
+                    alert("Accès refusé : code secret incorrect.");
                 });
-
-                // Reset
-                nomInput.value = ""; 
-                qteInput.value = ""; 
-                seuilInput.value = "";
-                btnLoc.innerText = "📍";
-                btnLoc.style.color = "#aaa"; 
-                btnLoc.style.borderColor = "#ccc";
-                nomInput.blur();
             }
         }
 
-        function ChangerQuantite (id, delta){
-            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
-            
+        function ChangerQuantite(id, delta){
             db.ref('fournitures/' + id).once('value').then((snap) => {
-                let nv = (snap.val().q || 0) + delta;
-                if (nv < 0) nv = 0;
-                db.ref('fournitures/' + id).update({ q: nv, secret: monSecret });
+                const item = snap.val();
+                let nv = (item.q || 0) + delta;
+                if (nv < 0){
+                    nv = 0;
+                }
+
+                // On prépare l'objet complet avec le secret
+                // Si monSecret n'est pas "4444", l'écriture sera REJETÉE par Firebase
+                db.ref('fournitures/' + id).update({
+                    q: nv,
+                    secret: monSecret
+                }).catch((error) => {
+                    // C'est ici que le blocage est géré
+                    alert("Erreur : Code secret incorrect. Modification annulée.");
+                });
             });
         }
 
         function ModifierSeuil (id, actuelSeuil){
-            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
-
             const nouveauSeuil = prompt("Nouveau seuil d'alerte :", actuelSeuil);
             if (nouveauSeuil != null){
                 const s = parseInt(nouveauSeuil);
-                if (!isNaN(s) && s >= 0) db.ref('fournitures/' + id).update({ s: s });
+                if (!isNaN(s) && s >= 0){
+                    db.ref('fournitures/' + id).update({ s: s, secret: monSecret }).catch((error) => {
+                        alert("Accès refusé : code secret incorrect.");
+                    });
+                }
             }
         }
 
         function SupprimerFourniture (id, nom){
-            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
-
             if (confirm("Supprimer '" + nom + "' ?")){
+                // On utilise update pour passer l'objet à null tout en validant le secret
                 db.ref('fournitures/' + id).remove();
             }
         }
@@ -648,9 +661,7 @@
             document.getElementById('btnPlan').className = isStock ? "" : "onglet-active";
         }
 
-        function ChangerZoneManuel(id, zoneActuelle){
-            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
-
+        function ChangerZoneManuel (id, zoneActuelle){
             // 1. Créer un voile sombre en arrière-plan
             const overlay = document.createElement("div");
             overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;";
@@ -677,7 +688,9 @@
                 
                 btn.onclick = () => {
                     if (z !== zoneActuelle){
-                        db.ref('fournitures/' + id).update({ l: z });
+                        db.ref('fournitures/' + id).update({ l: z, secret: monSecret }).catch((error) => {
+                            alert("Accès refusé : code secret incorrect.");
+                        });
                     }
                     document.body.removeChild(overlay);
                 };
@@ -849,7 +862,14 @@
 
         db.ref('fournitures').on('value', (snap) => {
             dernieresDonneesRecues = snap.val();
+            if (dernieresDonneesRecues == null){
+                document.getElementById('liste-fournitures').innerHTML = "Le stock est vide.";
+                return;
+            }
             AfficherInterface(dernieresDonneesRecues);
+        }, (error) => {
+            console.error("Erreur Firebase :", error);
+            document.getElementById('liste-fournitures').innerHTML = "Erreur de permission ou de connexion.";
         });
 
         function MontrerEmplacement (localisation){
