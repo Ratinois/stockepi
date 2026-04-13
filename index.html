@@ -592,7 +592,7 @@
             }
         }
 
-        public function ChangerQuantite(id, delta){
+        function ChangerQuantite(id, delta){
             db.ref('fournitures/' + id).once('value').then((snap) => {
                 const item = snap.val();
                 let nv = (item.q || 0) + delta;
