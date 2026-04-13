@@ -562,23 +562,23 @@
             let q = parseInt(qteInput.value) || 0;
             let s = parseInt(seuilInput.value) || 0;
 
-            // On vérifie d'abord si l'utilisateur a choisi une zone manuellement
             let l = (btnLoc.innerText === "📍") ? "" : btnLoc.innerText;
 
             if (n != ""){
-                // Mise en forme
                 n = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
 
-                // SI aucune zone n'a été donnée (l est vide), on déclenche l'automatique
                 if (l === ""){
                     l = AttribuerZoneAuto(n);
                 }
 
-                // On tente l'envoi. Si le secret est mauvais, les Rules Firebase bloqueront.
                 db.ref('fournitures').push({
-                    n: n, q: q, s: s, c: c, l: l, secret: monSecret
+                    n: n,
+                    q: q,
+                    s: s,
+                    c: c,
+                    l: l,
+                    secret: monSecret
                 }).then(() => {
-                    // Reset - Uniquement exécuté si Firebase a accepté l'écriture
                     nomInput.value = "";
                     qteInput.value = "";
                     seuilInput.value = "";
@@ -626,7 +626,15 @@
 
         function SupprimerFourniture (id, nom){
             if (confirm("Supprimer '" + nom + "' ?")){
-                db.ref('fournitures/' + id).remove().catch((error) => {
+                // On utilise update pour passer l'objet à null tout en validant le secret
+                db.ref('fournitures/' + id).update({
+                    n: null,
+                    q: null,
+                    s: null,
+                    c: null,
+                    l: null,
+                    secret: monSecret
+                }).catch((error) => {
                     alert("Accès refusé : code secret incorrect.");
                 });
             }
