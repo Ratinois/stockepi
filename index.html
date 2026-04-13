@@ -551,7 +551,6 @@
         }
 
         function CreerFourniture(){
-            if (monSecret == ""){ alert("Erreur."); return; }
             const nomInput = document.getElementById('nomInput');
             const qteInput = document.getElementById('qteInput');
             const seuilInput = document.getElementById('seuilInput');
@@ -562,59 +561,69 @@
             const c = catInput.value;
             let q = parseInt(qteInput.value) || 0;
             let s = parseInt(seuilInput.value) || 0;
-            
+
             // On vérifie d'abord si l'utilisateur a choisi une zone manuellement
             let l = (btnLoc.innerText === "📍") ? "" : btnLoc.innerText;
 
             if (n != ""){
                 // Mise en forme
                 n = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
-                
+
                 // SI aucune zone n'a été donnée (l est vide), on déclenche l'automatique
                 if (l === ""){
                     l = AttribuerZoneAuto(n);
                 }
 
-                db.ref('fournitures').push({ 
-                    n: n, q: q, s: s, c: c, l: l, secret: monSecret 
+                // On tente l'envoi. Si le secret est mauvais, les Rules Firebase bloqueront.
+                db.ref('fournitures').push({
+                    n: n, q: q, s: s, c: c, l: l, secret: monSecret
+                }).then(() => {
+                    // Reset - Uniquement exécuté si Firebase a accepté l'écriture
+                    nomInput.value = "";
+                    qteInput.value = "";
+                    seuilInput.value = "";
+                    btnLoc.innerText = "📍";
+                    btnLoc.style.color = "#aaa";
+                    btnLoc.style.borderColor = "#ccc";
+                    nomInput.blur();
+                }).catch((error) => {
+                    alert("Accès refusé : code secret incorrect.");
                 });
-
-                // Reset
-                nomInput.value = ""; 
-                qteInput.value = ""; 
-                seuilInput.value = "";
-                btnLoc.innerText = "📍";
-                btnLoc.style.color = "#aaa"; 
-                btnLoc.style.borderColor = "#ccc";
-                nomInput.blur();
             }
         }
 
         function ChangerQuantite (id, delta){
-            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
-            
             db.ref('fournitures/' + id).once('value').then((snap) => {
                 let nv = (snap.val().q || 0) + delta;
-                if (nv < 0) nv = 0;
-                db.ref('fournitures/' + id).update({ q: nv, secret: monSecret });
+                if (nv < 0){
+                    nv = 0;
+                }
+
+                // On tente la mise à jour en envoyant le secret stocké dans la variable
+                db.ref('fournitures/' + id).update({ q: nv, secret: monSecret }).catch((error) => {
+                    alert("Action impossible : code secret manquant ou incorrect.");
+                    console.error(error);
+                });
             });
         }
 
         function ModifierSeuil (id, actuelSeuil){
-            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
-
             const nouveauSeuil = prompt("Nouveau seuil d'alerte :", actuelSeuil);
             if (nouveauSeuil != null){
                 const s = parseInt(nouveauSeuil);
-                if (!isNaN(s) && s >= 0) db.ref('fournitures/' + id).update({ s: s });
+                if (!isNaN(s) && s >= 0){
+                    db.ref('fournitures/' + id).update({ s: s, secret: monSecret }).catch((error) => {
+                        alert("Accès refusé : code secret incorrect.");
+                    });
+                }
             }
         }
 
         function SupprimerFourniture (id, nom){
-            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
-
             if (confirm("Supprimer '" + nom + "' ?")){
-                db.ref('fournitures/' + id).remove();
+                db.ref('fournitures/' + id).remove().catch((error) => {
+                    alert("Accès refusé : code secret incorrect.");
+                });
             }
         }
 
@@ -648,9 +657,7 @@
             document.getElementById('btnPlan').className = isStock ? "" : "onglet-active";
         }
 
-        function ChangerZoneManuel(id, zoneActuelle){
-            if (monSecret == ""){ alert("Lecture seule : code manquant."); return; }
-
+        function ChangerZoneManuel (id, zoneActuelle){
             // 1. Créer un voile sombre en arrière-plan
             const overlay = document.createElement("div");
             overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;";
@@ -677,7 +684,9 @@
                 
                 btn.onclick = () => {
                     if (z !== zoneActuelle){
-                        db.ref('fournitures/' + id).update({ l: z });
+                        db.ref('fournitures/' + id).update({ l: z, secret: monSecret }).catch((error) => {
+                            alert("Accès refusé : code secret incorrect.");
+                        });
                     }
                     document.body.removeChild(overlay);
                 };
