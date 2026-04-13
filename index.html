@@ -862,14 +862,7 @@
 
         db.ref('fournitures').on('value', (snap) => {
             dernieresDonneesRecues = snap.val();
-            if (dernieresDonneesRecues == null){
-                document.getElementById('liste-fournitures').innerHTML = "Le stock est vide.";
-                return;
-            }
             AfficherInterface(dernieresDonneesRecues);
-        }, (error) => {
-            console.error("Erreur Firebase :", error);
-            document.getElementById('liste-fournitures').innerHTML = "Erreur de permission ou de connexion.";
         });
 
         function MontrerEmplacement (localisation){
