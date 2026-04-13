@@ -592,20 +592,22 @@
             }
         }
 
-        function ChangerQuantite (id, delta){
+        function ChangerQuantite(id, delta){
             db.ref('fournitures/' + id).once('value').then((snap) => {
-                const data = snap.val();
-                let nv = (data.q || 0) + delta;
-                if (nv < 0){
-                    nv = 0;
-                }
+                const article = snap.val();
+                let nv = (article.q || 0) + delta;
+                if (nv < 0) nv = 0;
 
-                // Si monSecret est mauvais, le .catch s'exécutera
-                db.ref('fournitures/' + id).update({
+                // On reconstruit l'objet complet pour le .set
+                // Cela garantit que la règle newData.child('secret') est testée sur l'objet entier
+                const articleMisAJour = {
+                    ...article,
                     q: nv,
-                    secret: monSecret
-                }).catch((error) => {
-                    alert("Sécurité : Modification refusée par le serveur.");
+                    secret: monSecret // On injecte le secret ici
+                };
+
+                db.ref('fournitures/' + id).set(articleMisAJour).catch((error) => {
+                    alert("Sécurité : Modification refusée.");
                 });
             });
         }
