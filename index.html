@@ -99,25 +99,38 @@
                 display: flex !important;
                 align-items: center;
                 flex: 1;
-                min-width: 0; /* Important pour que le texte se coupe avec ... */
+                min-width: 0;
                 overflow: hidden;
                 font-size: 13px !important;
-                margin-right: 12px !important;
+                margin-right: 6px !important;
             }
 
-            /* Le texte du nom prend tout l'espace libre */
-            .nom-objet span:first-child {
+            .nom-inner {
+                display: flex !important;
+                align-items: center;
+                flex: 1;
+                min-width: 0;
+                overflow: hidden;
+                gap: 4px !important;
+            }
+
+            .nom-texte {
                 flex: 1;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                margin-right: 4px;
+                min-width: 0;
+            }
+
+            .nom-objet img, .miniature-img{
+                width:22px !important;
+                height:22px !important;
             }
 
             /* On s'assure que les badges ne rétrécissent pas */
             .badge-zone, .btn-voir-plan {
                 flex-shrink: 0;
-                font-size: 10px; /* On réduit aussi un peu les badges pour gagner de la place */
+                font-size: 10px;
                 padding: 1px 4px;
             }
         }
@@ -242,8 +255,29 @@
         .btn-next { right: 10px; }
 
         .nom-objet{ display: flex; align-items: center; width: 100%; overflow: hidden; }
-        .nom-objet span:first-child{ flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        .nom-inner { display:flex; align-items:center; gap:6px; flex:1; min-width:0; overflow:hidden; }
+        .nom-texte { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; cursor:help; }
         .badge-zone{ flex-shrink: 0; }
+
+        /* SOUS-ARTICLES */
+        .carte-parent { border-left: 3px solid #0288d1 !important; }
+        .badge-total { background:#0288d1; color:white; border-radius:4px; padding:2px 7px; font-size:12px; font-weight:bold; margin-left:6px; flex-shrink:0; }
+        .carte-enfant { 
+            margin-left: 18px !important; 
+            border-left: 3px solid #b3d9f0 !important;
+            background: #f7fbff !important;
+            height: 40px !important;
+        }
+        .carte-enfant .nom-texte { font-size:14px !important; color:#555 !important; font-weight:normal !important; }
+        .carte-enfant .badge { font-size:0.8em !important; min-width:28px !important; }
+        .carte-enfant .ctrl-btn { min-width:26px !important; font-size:12px !important; }
+        .btn-detacher { border:none; background:none; font-size:0.9em; cursor:pointer; padding:0 3px; color:#aaa; }
+        .btn-detacher:hover { color:#e53935; }
+
+        /* DRAG & DROP */
+        .carte-objet { cursor: grab; }
+        .carte-objet.drag-over-parent { outline: 2px dashed #0288d1; background: #e1f5fe !important; }
+        .carte-objet.dragging { opacity: 0.4; cursor: grabbing; }
 
         /* Calque de surbrillance */
         .highlight-overlay {
@@ -418,6 +452,14 @@
                         style="width:100%; height:35px; background:white; border:1px solid #ccc; border-radius:4px; font-weight:bold; color:#666;"
                         onclick="OuvrirGrilleAjout()">📍</button>
             </div>
+
+            <div class="champ-groupe cg-num">
+                <label>Photo</label>
+                <label for="fileInput" class="input-nombre" style="cursor:pointer; display:flex; align-items:center; justify-content:center; background:white; height:35px;">
+                    <span id="statutPhoto">📷</span>
+                    <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="document.getElementById('statutPhoto').innerText = '✅'">
+                </label>
+            </div>
             
             <div class="champ-groupe cg-btn">
                 <button class="btn-ajout" onclick="CreerFourniture()"><span>Ajouter</span></button>
@@ -491,52 +533,97 @@
 
             const ordreCat = { "Vaisselle": 1, "Linge": 2, "Meuble": 3, "Divers": 4 };
 
-            const getEmoji = (nom) => {
+            const getEmoji = (nom, categorie) => {
+                if (CONFIG_CATEGORIES[categorie]) return CONFIG_CATEGORIES[categorie].emoji;
                 const n = nom.toLowerCase();
-                for (const data of Object.values(CONFIG_CATEGORIES)){
-                    if (data.mots.some(mot => n.includes(mot))) return data.emoji;
+                for (const d of Object.values(CONFIG_CATEGORIES)){
+                    if (d.mots.some(mot => n.includes(mot))) return d.emoji;
                 }
                 return "📦 ";
             };
 
-            const tableauTrie = Object.keys(data).map(id => ({ id: id, ...data[id] }));
+            const tous = Object.keys(data).map(id => ({ id, ...data[id] }));
 
-            tableauTrie.sort((a, b) => {
+            tous.sort((a, b) => {
                 const catA = AttribuerCategorieAuto(a.n, a.c);
                 const catB = AttribuerCategorieAuto(b.n, b.c);
-                
-                if (ordreCat[catA] !== ordreCat[catB]){
-                    return ordreCat[catA] - ordreCat[catB];
-                }
+                if (ordreCat[catA] !== ordreCat[catB]) return ordreCat[catA] - ordreCat[catB];
                 return a.n.localeCompare(b.n);
             });
 
+            // Séparer parents et enfants — parentId null/absent/string"null" = article racine
+            const enfantsParParent = {};
+            const parents = [];
+            tous.forEach(f => {
+                const pid = f.parentId;
+                // Debug : affiche ce que Firebase donne vraiment
+                if (pid !== undefined) console.log(`[debug] "${f.n}" parentId=`, JSON.stringify(pid), typeof pid);
+                if (pid && pid !== "null" && pid !== "undefined") {
+                    if (!enfantsParParent[pid]) enfantsParParent[pid] = [];
+                    enfantsParParent[pid].push(f);
+                } else {
+                    parents.push(f);
+                }
+            });
+            // tousEnfantsParParent = même chose sans filtre (pour le Σ)
+            const tousEnfantsParParent = enfantsParParent; // identiques car "tous" n'est pas filtré
+
             conteneur.innerHTML = "";
-            tableauTrie.forEach((f) => {
+
+            const creerCarte = (f, estEnfant) => {
                 const catReelle = AttribuerCategorieAuto(f.n, f.c);
-                if (filtreActuel !== "Tous" && catReelle !== filtreActuel) return;
-                
+                if (!estEnfant && filtreActuel !== "Tous" && catReelle !== filtreActuel) return null;
+
                 const seuilVrai = f.s || 0;
                 const estEnAlerte = (seuilVrai > 0 && f.q < seuilVrai);
                 const loc = f.l || "A1";
+                const nbEnfants   = (tousEnfantsParParent[f.id] || []).length;
+                const totalEnfants = (tousEnfantsParParent[f.id] || []).reduce((s, e) => s + (e.q || 0), 0);
+                const estParent   = nbEnfants > 0;
 
-                // --- CALCUL DU MANQUANT ---
                 let texteAlerte = "";
                 if (estEnAlerte){
                     const manquant = seuilVrai - f.q;
-                    texteAlerte = `<span class="alerte-info" style="color:#d32f2f; font-weight:bold; margin-left:5px;">⚠️ (-${manquant})</span>`;
+                    texteAlerte = `<span style="color:#d32f2f; font-weight:bold; margin-left:5px; flex-shrink:0;">⚠️ (-${manquant})</span>`;
                 }
 
                 const div = document.createElement('div');
-                div.className = "carte-objet";
-                if (estEnAlerte){ div.style.background = "#ffebee"; div.style.borderColor = "#ef9a9a"; }
+                div.className = "carte-objet" + (estParent ? " carte-parent" : "") + (estEnfant ? " carte-enfant" : "");
+                div.dataset.id = f.id;
+                div.draggable = true;
+
+                if (estEnAlerte && !estEnfant){ div.style.background = "#ffebee"; div.style.borderColor = "#ef9a9a"; }
+
+                const icone = f.img
+                    ? `<span class="miniature-wrap" data-id="${f.id}" style="position:relative; flex-shrink:0; cursor:pointer;" title="Clic : options photo">
+                            <img src="${f.img}" class="miniature-img" style="width:${estEnfant?'22':'28'}px; height:${estEnfant?'22':'28'}px; object-fit:cover; border-radius:6px; border:1px solid #ccc; display:block;">
+                            <img src="${f.img}" class="miniature-zoom" style="display:none; position:fixed; z-index:9999; width:160px; height:160px; object-fit:cover; border-radius:10px; border:2px solid #0288d1; box-shadow:0 4px 20px rgba(0,0,0,0.4); pointer-events:none;">
+                            <input type="file" class="upload-replace" data-id="${f.id}" accept="image/*" style="display:none;">
+                       </span>`
+                    : `<span class="emoji-upload-wrap" style="flex-shrink:0; cursor:pointer;" title="Ajouter une photo">
+                            <span style="font-size:${estEnfant?'14':'16'}px;">${getEmoji(f.n, catReelle)}</span>
+                            <input type="file" class="upload-replace" data-id="${f.id}" accept="image/*" style="display:none;">
+                       </span>`;
+
+                const badgeTotal = estParent
+                    ? `<span class="badge-total" title="${nbEnfants} sous-article(s), total: ${totalEnfants}">${nbEnfants} 📂</span>`
+                    : "";
+
+                const btnDetacher = estEnfant
+                    ? `<button class="btn-detacher" onclick="DetacherEnfant('${f.id}')" title="Détacher">✕</button>`
+                    : "";
 
                 div.innerHTML = `
                     <div class="nom-objet">
-                        <span onclick="ModifierSeuil('${f.id}', ${seuilVrai})" style="cursor:help">${getEmoji(f.n)}${f.n}</span>
+                        <div class="nom-inner">
+                            ${icone}
+                            <span class="nom-texte" onclick="ModifierSeuil('${f.id}', ${seuilVrai})">${f.n}</span>
+                            ${badgeTotal}
+                            ${texteAlerte}
+                        </div>
                         <span class="badge-zone" onclick="ChangerZoneManuel('${f.id}', '${loc}')">📍 ${loc}</span>
                         <span onclick="OuvrirPlanZone('${loc}')" style="cursor:pointer; margin-left:8px;">🔍</span>
-                        ${texteAlerte}
+                        ${btnDetacher}
                     </div>
                     <div class="controles">
                         <button class="ctrl-btn btn-5" onclick="ChangerQuantite('${f.id}', -5)">-5</button>
@@ -546,51 +633,260 @@
                         <button class="ctrl-btn btn-5" onclick="ChangerQuantite('${f.id}', 5)">+5</button>
                         <button class="btn-poubelle" onclick="SupprimerFourniture('${f.id}', '${f.n}')">🗑️</button>
                     </div>`;
-                conteneur.appendChild(div);
+
+                // Drag & drop events
+                div.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', f.id);
+                    div.classList.add('dragging');
+                });
+                div.addEventListener('dragend', () => div.classList.remove('dragging'));
+                div.addEventListener('dragover', (e) => {
+                    if (!estEnfant) { e.preventDefault(); div.classList.add('drag-over-parent'); }
+                });
+                div.addEventListener('dragleave', () => div.classList.remove('drag-over-parent'));
+                div.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    div.classList.remove('drag-over-parent');
+                    const draggedId = e.dataTransfer.getData('text/plain');
+                    if (draggedId === f.id) return; // même article
+                    if (estEnfant) return; // on ne droppe pas sur un enfant
+                    // Vérif: on ne droppe pas un parent qui a déjà des enfants sur un autre parent
+                    AttacherEnfant(draggedId, f.id);
+                });
+
+                return div;
+            };
+
+            parents.forEach(f => {
+                if (filtreActuel !== "Tous" && AttribuerCategorieAuto(f.n, f.c) !== filtreActuel) return;
+                const carte = creerCarte(f, false);
+                if (!carte) return;
+                conteneur.appendChild(carte);
+                // Ajouter les enfants juste en dessous
+                (enfantsParParent[f.id] || []).forEach(enfant => {
+                    const carteEnfant = creerCarte(enfant, true);
+                    if (carteEnfant) conteneur.appendChild(carteEnfant);
+                });
+            });
+
+            // --- MINIATURES : zoom hover desktop uniquement, clic = menu ---
+            conteneur.querySelectorAll('.miniature-wrap').forEach(wrap =>{
+                const input = wrap.querySelector('.upload-replace');
+                const zoom = wrap.querySelector('.miniature-zoom');
+                const id = wrap.dataset.id;
+
+                // NOUVEAU : On empêche la propagation du clic sur l'input pour éviter qu'il remonte au wrap
+                input.addEventListener('click', (e) =>{
+                    e.stopPropagation();
+                });
+
+                // Hover desktop
+                wrap.addEventListener('mouseenter', () =>{ zoom.style.display = 'block'; });
+                wrap.addEventListener('mousemove', (e) =>{
+                    zoom.style.left = (e.clientX + 15) + 'px';
+                    zoom.style.top = Math.max(10, e.clientY - 170) + 'px';
+                });
+                wrap.addEventListener('mouseleave', () =>{ zoom.style.display = 'none'; });
+
+                // Clic = menu options
+                let overlayActif = null;
+                const fermerOverlay = () =>{ if (overlayActif && overlayActif.parentNode){ document.body.removeChild(overlayActif); overlayActif = null; } };
+
+                wrap.addEventListener('click', () =>{
+                    zoom.style.display = 'none';
+                    const item = dernieresDonneesRecues[id];
+                    const cat = item ? AttribuerCategorieAuto(item.n, item.c) : "Divers";
+                    const emojis = { "Vaisselle":"🍽️", "Linge":"🧺", "Meuble":"🗄️", "Divers":"📦" };
+                    const emojiCat = emojis[cat] || "📦";
+
+                    const overlay = document.createElement('div');
+                    overlay.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;";
+                    overlay.innerHTML = `
+                        <div style="background:white;border-radius:12px;padding:20px;width:100%;max-width:260px;text-align:center;">
+                            <p style="margin:0 0 15px;font-weight:bold;font-size:15px;">📷 Modifier la photo</p>
+                            <button id="opt-remplacer" style="display:block;width:100%;padding:11px;margin-bottom:8px;border:1px solid #ccc;border-radius:6px;background:#f9f9f9;cursor:pointer;font-size:14px;">📷 Remplacer la photo</button>
+                            <button id="opt-emoji" style="display:block;width:100%;padding:11px;margin-bottom:8px;border:1px solid #ccc;border-radius:6px;background:#f9f9f9;cursor:pointer;font-size:14px;">${emojiCat} Remettre l'icône de base</button>
+                            <button id="opt-annuler" style="display:block;width:100%;padding:11px;border:none;background:#eee;border-radius:6px;cursor:pointer;font-size:14px;color:#666;">Annuler</button>
+                        </div>`;
+                    overlayActif = overlay;
+                    document.body.appendChild(overlay);
+
+                    overlay.querySelector('#opt-remplacer').onclick = () => {
+                        // 1. On récupère la référence avant de fermer l'overlay
+                        const inputAouvrir = input; 
+                        
+                        // 2. On ferme l'overlay proprement
+                        fermerOverlay(); 
+                        
+                        // 3. On décale l'ouverture du sélecteur à la prochaine "frame" 
+                        // Cela évite le conflit d'événements sur Firefox
+                        setTimeout(() => {
+                            inputAouvrir.click();
+                        }, 0);
+                    };
+                    overlay.querySelector('#opt-emoji').onclick = () =>{
+                        fermerOverlay();
+                        if (!item || item.secret !== monSecret){ alert("Accès refusé."); return; }
+                        db.ref('fournitures/' + id).update({ img: "", secret: monSecret });
+                    };
+                    overlay.querySelector('#opt-annuler').onclick = fermerOverlay;
+                    overlay.addEventListener('click', (ev) =>{ if (ev.target === overlay) fermerOverlay(); });
+                });
+
+                input.addEventListener('change', async (e) =>{
+                    const file = e.target.files[0];
+                    if (!file) return; // Si l'utilisateur annule la sélection, on ne fait rien, le menu est déjà fermé
+                    const item = dernieresDonneesRecues[id];
+                    if (!item || item.secret !== monSecret){ alert("Accès refusé."); return; }
+                    try {
+                        const url = await CompresserImage(file);
+                        await db.ref('fournitures/' + id).update({ img: url, secret: monSecret });
+                    } catch(err){ alert("Erreur image."); }
+                });
+            });
+
+            // Clic sur emoji = upload direct
+            conteneur.querySelectorAll('.emoji-upload-wrap').forEach(wrap => {
+                const input = wrap.querySelector('.upload-replace');
+                wrap.addEventListener('click', () => input.click());
+                input.addEventListener('change', async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const id   = input.dataset.id;
+                    const item = dernieresDonneesRecues[id];
+                    if (!item || item.secret !== monSecret) { alert("Accès refusé."); return; }
+                    try {
+                        const url = await CompresserImage(file);
+                        db.ref('fournitures/' + id).update({ img: url, secret: monSecret });
+                    } catch(err) { alert("Erreur image."); }
+                });
             });
         }
 
-        function CreerFourniture(){
-            const nomInput = document.getElementById('nomInput');
-            const qteInput = document.getElementById('qteInput');
-            const seuilInput = document.getElementById('seuilInput');
-            const catInput = document.getElementById('catInput');
-            const btnLoc = document.getElementById('locInputBtn');
-
-            let n = nomInput.value.trim();
-            const c = catInput.value;
-            let q = parseInt(qteInput.value) || 0;
-            let s = parseInt(seuilInput.value) || 0;
-
-            let l = (btnLoc.innerText === "📍") ? "" : btnLoc.innerText;
-
-            if (n != ""){
-                n = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
-
-                if (l === ""){
-                    l = AttribuerZoneAuto(n);
-                }
-
-                db.ref('fournitures').push({
-                    n: n,
-                    q: q,
-                    s: s,
-                    c: c,
-                    l: l,
-                    secret: monSecret
-                }).then(() => {
-                    nomInput.value = "";
-                    qteInput.value = "";
-                    seuilInput.value = "";
-                    btnLoc.innerText = "📍";
-                    btnLoc.style.color = "#aaa";
-                    btnLoc.style.borderColor = "#ccc";
-                    nomInput.blur();
-                }).catch((error) => {
-                    alert("Accès refusé : code secret incorrect.");
-                });
+        function AttacherEnfant (enfantId, parentId){
+            // Vérifier que l'enfant n'est pas lui-même un parent (pas de nesting à 2 niveaux)
+            const enfant = dernieresDonneesRecues[enfantId];
+            if (!enfant) return;
+            if (enfant.parentId){
+                alert("Cet article est déjà un sous-article. Détachez-le d'abord.");
+                return;
             }
+            
+            // Vérifier que le parent n'est pas lui-même un enfant
+            const parent = dernieresDonneesRecues[parentId];
+            if (parent && parent.parentId){
+                alert("Impossible : vous ne pouvez pas créer de sous-article d'un sous-article.");
+                return;
+            }
+
+            // Nouvelle vérification : s'assurer que l'article glissé n'a pas déjà ses propres sous-articles
+            let aDesEnfants = false;
+            for (const id in dernieresDonneesRecues){
+                if (dernieresDonneesRecues[id].parentId === enfantId){
+                    aDesEnfants = true;
+                    break;
+                }
+            }
+
+            if (aDesEnfants === true){
+                alert("Impossible : cet article contient déjà des sous-articles, il ne peut donc pas être déplacé dans un autre.");
+                return;
+            }
+
+            db.ref('fournitures/' + enfantId).update({ parentId: parentId, secret: monSecret })
+                .catch(() => alert("Accès refusé."));
         }
+
+        function DetacherEnfant(enfantId){
+            db.ref('fournitures/' + enfantId).update({ parentId: null, secret: monSecret })
+                .catch(() => alert("Accès refusé."));
+        }
+
+        function CompresserImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    const img = new Image();
+                    img.onload = function(){
+                        const MAX = 200;
+                        let w = img.width, h = img.height;
+                        if (w > h){ if (w > MAX){ h = Math.round(h * MAX / w); w = MAX; } }
+                        else { if (h > MAX){ w = Math.round(w * MAX / h); h = MAX; } }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function CreerFourniture(){
+        const nomInput = document.getElementById('nomInput');
+        const qteInput = document.getElementById('qteInput');
+        const seuilInput = document.getElementById('seuilInput');
+        const catInput = document.getElementById('catInput');
+        const btnLoc = document.getElementById('locInputBtn');
+        const fileInput = document.getElementById('fileInput');
+
+        let n = nomInput.value.trim();
+        const c = catInput.value;
+        let q = parseInt(qteInput.value) || 0;
+        let s = parseInt(seuilInput.value) || 0;
+
+        let l = (btnLoc.innerText === "📍") ? "" : btnLoc.innerText;
+        const file = fileInput.files[0];
+        let imageUrl = "";
+
+        if (n != ""){
+            n = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
+
+            if (l === ""){
+                l = AttribuerZoneAuto(n);
+            }
+
+            // --- COMPRESSION IMAGE ---
+if (file){
+    try {
+        imageUrl = await CompresserImage(file);
+    } catch (e){
+        console.error("Erreur image:", e);
+        alert("Erreur image.");
+    }
+}
+
+            db.ref('fournitures').push({
+                n: n,
+                q: q,
+                s: s,
+                c: c,
+                l: l,
+                img: imageUrl,
+                secret: monSecret
+            }).then(() => {
+                nomInput.value = "";
+                qteInput.value = "";
+                seuilInput.value = "";
+                btnLoc.innerText = "📍";
+                btnLoc.style.color = "#aaa";
+                btnLoc.style.borderColor = "#ccc";
+                
+                // Reset de l'icône photo
+                if (fileInput){
+                    fileInput.value = "";
+                    document.getElementById('statutPhoto').innerText = "📷";
+                }
+                
+                nomInput.blur();
+            }).catch((error) => {
+                alert("Accès refusé : code secret incorrect.");
+            });
+        }
+    }
 
         function ChangerQuantite(id, delta){
             db.ref('fournitures/' + id).once('value').then((snap) => {
