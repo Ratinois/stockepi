@@ -1212,21 +1212,52 @@ if (file){
         async function RestaurerBDD (event){
             const fichier = event.target.files[0];
             if (!fichier) return;
+
             const lecteur = new FileReader();
-            lecteur.onload = async function(e){
+            lecteur.onload = async function (e){
+                let contenu;
+                
+                // 1. On isole la lecture du JSON pour avoir la vraie erreur si elle existe
                 try {
-                    const contenu = JSON.parse(e.target.result);
-                    if (confirm("Restaurer ?")){
+                    contenu = JSON.parse(e.target.result);
+                } catch (err){
+                    alert("Erreur : Le fichier JSON est invalide ou corrompu.");
+                    event.target.value = ''; // On vide l'input pour pouvoir réessayer
+                    return; 
+                }
+
+                if (confirm("Attention : Restaurer cette sauvegarde écrasera les données actuelles. Confirmer ?")){
+                    try {
                         const ref = db.ref('fournitures');
                         let updates = {};
+
+                        // On récupère ce qu'il y a actuellement pour pouvoir supprimer ce qui n'est plus dans la sauvegarde
+                        const snapshot = await ref.once('value');
+                        const dataActuelle = snapshot.val() || {};
+                        for (let id in dataActuelle){
+                            updates[id] = null; // On prépare la suppression de l'ancien stock
+                        }
+
+                        // On ajoute les données de la sauvegarde
                         for (let id in contenu){
                             let article = contenu[id];
                             article.secret = monSecret;
                             updates[id] = article;
                         }
-                        await ref.set(updates);
+
+                        // 2. LE CORRECTIF MAGIQUE : on utilise .update() au lieu de .set()
+                        // Firebase accepte les mises à jour enfant par enfant
+                        await ref.update(updates);
+                        
+                        alert("Restauration réussie avec succès !");
+                    } catch (err){
+                        console.error(err);
+                        alert("Erreur Firebase lors de la restauration : " + err.message + "\n(Vérifiez que votre code secret est le bon)");
                     }
-                } catch (err){ alert("Erreur JSON."); }
+                }
+                
+                // On vide l'input pour pouvoir re-sélectionner le même fichier si on veut
+                event.target.value = '';
             };
             lecteur.readAsText(fichier);
         }
