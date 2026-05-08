@@ -750,6 +750,7 @@
         }
 
         function AfficherInterface(data){
+            let nbResultats = 0;
             const conteneur = document.getElementById('liste-fournitures');
             if (!data) return;
 
@@ -794,7 +795,8 @@
 
             const creerCarte = (f, estEnfant) => {
                 if (rechercheTexte != ""){
-                    if (!f.n.toLowerCase().startsWith(rechercheTexte)){
+                    const nomLow = f.n.toLowerCase();
+                    if (!nomLow.startsWith(rechercheTexte) && !nomLow.includes(" " + rechercheTexte)){
                         return null;
                     }
                 }
@@ -897,6 +899,14 @@
                     if (carteEnfant) conteneur.appendChild(carteEnfant);
                 });
             });
+
+            if (conteneur.innerHTML == ""){
+                conteneur.innerHTML = `
+                    <div style="text-align:left; color:#888; padding:30px 10px; font-size:15px;">
+                        Aucune fourniture trouvée
+                    </div>
+                `;
+            }
 
             // --- MINIATURES : zoom hover desktop uniquement, clic = menu ---
             conteneur.querySelectorAll('.miniature-wrap').forEach(wrap =>{
@@ -1026,9 +1036,14 @@
             // Nouvelle vérification : s'assurer que la fourniture glissé n'a pas déjà ses propres sous-fournitures
             let aDesEnfants = false;
             for (const id in dernieresDonneesRecues){
-                if (dernieresDonneesRecues[id].parentId === enfantId){
-                    aDesEnfants = true;
-                    break;
+                const nom = dernieresDonneesRecues[id].n;
+                const nomLow = nom.toLowerCase();
+
+                if (nomLow.startsWith(rechercheTexte) || nomLow.includes(" " + rechercheTexte)){
+                    if (!suggestions.includes(nom)){
+                        suggestions.push(nom);
+                        nbResultats++;
+                    }
                 }
             }
 
@@ -1432,6 +1447,7 @@ if (file){
                 if (nom.toLowerCase().startsWith(rechercheTexte)){
                     if (!suggestions.includes(nom)){
                         suggestions.push(nom);
+                        nbResultats++;
                     }
                 }
             }
