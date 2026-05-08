@@ -6,6 +6,7 @@
     <title>Inventaire Stock</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+    
     <style>
         body{ font-family: sans-serif; padding: 5px; background: #f4f4f4; max-width: 650px; margin: auto; }
         
@@ -467,7 +468,68 @@
     }
 }
 
-    </style>
+.recherche-wrap{
+    position:relative;
+    margin:14px 0;
+}
+
+#rechercheInput{
+    width:100%;
+    box-sizing:border-box;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    font-size:15px;
+    background:white;
+}
+
+#rechercheInput:focus{
+    outline:none;
+    border-color:#0288d1;
+}
+
+#suggestionsRecherche{
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    background:white;
+    border:1px solid #ddd;
+    border-top:none;
+    border-radius:0 0 10px 10px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.08);
+    z-index:2000;
+    display:none;
+    overflow:hidden;
+}
+
+.suggestion-item{
+    padding:10px 12px;
+    cursor:pointer;
+    border-top:1px solid #f2f2f2;
+}
+
+.suggestion-item:hover{
+    background:#f5faff;
+}
+
+.image-fullscreen{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.92);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:99999;
+}
+
+.image-fullscreen img{
+    max-width:92vw;
+    max-height:92vh;
+    border-radius:12px;
+}
+
+</style>
 </head>
 <body>
 
@@ -488,6 +550,7 @@
             <div class="patch-date">7 mai 2026</div>
             <div class="patch-version">v1.2</div>
             <div class="patch-content">
+                • Ajout champ rechercher<br>
                 • Ajout glisser-déposer pour sous-fournitures<br>
                 • Possibilité d'attribuer une photo aux fournitures
             </div>
@@ -505,7 +568,7 @@
             <div class="patch-date">12 février 2026</div>
             <div class="patch-version">v1.0</div>
             <div class="patch-content">
-                • Inventaire<br>
+                • Inventaire
             </div>
         </div>
 
@@ -619,6 +682,11 @@
             </div>
         </div>
 
+        <div class="recherche-wrap">
+            <input type="text" id="rechercheInput" placeholder="🔎 Rechercher une fourniture..." autocomplete="off">
+            <div id="suggestionsRecherche"></div>
+        </div>
+
         <div class="zone-filtres">
             <button onclick="ChangerFiltre('Tous')" class="filtre-actif ctrl-btn">Tous</button>
             <button onclick="ChangerFiltre('Vaisselle')" class="btn-vais ctrl-btn">🍽️ <span>Vaisselle</span></button>
@@ -652,6 +720,7 @@
             window.history.replaceState({}, document.title, window.location.pathname);
         }
         let monSecret = localStorage.getItem('secret_stock') || "";
+        let rechercheTexte = "";
 
         // 1. On définit la base de données de mots-clés une seule fois
         const CONFIG_CATEGORIES = {
@@ -724,6 +793,11 @@
             conteneur.innerHTML = "";
 
             const creerCarte = (f, estEnfant) => {
+                if (rechercheTexte != ""){
+                    if (!f.n.toLowerCase().includes(rechercheTexte)){
+                        return null;
+                    }
+                }
                 const catReelle = AttribuerCategorieAuto(f.n, f.c);
                 if (!estEnfant && filtreActuel !== "Tous" && catReelle !== filtreActuel) return null;
 
@@ -846,8 +920,23 @@
                 // Clic = menu options
                 let overlayActif = null;
                 const fermerOverlay = () =>{ if (overlayActif && overlayActif.parentNode){ document.body.removeChild(overlayActif); overlayActif = null; } };
-
+                
                 wrap.addEventListener('click', () =>{
+                    if (window.innerWidth < 900){
+                        const plein = document.createElement('div');
+
+                        plein.className = "image-fullscreen";
+
+                        plein.innerHTML = `<img src="${item.img}">`;
+
+                        plein.addEventListener('click', () =>{
+                            document.body.removeChild(plein);
+                        });
+
+                        document.body.appendChild(plein);
+
+                        return;
+                    }
                     zoom.style.display = 'none';
                     const item = dernieresDonneesRecues[id];
                     const cat = item ? AttribuerCategorieAuto(item.n, item.c) : "Divers";
@@ -1319,6 +1408,56 @@ if (file){
         db.ref('fournitures').on('value', (snap) => {
             dernieresDonneesRecues = snap.val();
             AfficherInterface(dernieresDonneesRecues);
+        });
+
+        const rechercheInput = document.getElementById('rechercheInput');
+
+        rechercheInput.addEventListener('input', () =>{
+            rechercheTexte = rechercheInput.value.trim().toLowerCase();
+
+            AfficherInterface(dernieresDonneesRecues);
+
+            const box = document.getElementById('suggestionsRecherche');
+
+            if (rechercheTexte == ""){
+                box.style.display = "none";
+                return;
+            }
+
+            const suggestions = [];
+
+            for (const id in dernieresDonneesRecues){
+                const nom = dernieresDonneesRecues[id].n;
+
+                if (nom.toLowerCase().includes(rechercheTexte)){
+                    if (!suggestions.includes(nom)){
+                        suggestions.push(nom);
+                    }
+                }
+            }
+
+            suggestions.sort();
+
+            box.innerHTML = suggestions.slice(0, 5).map(n =>
+                `<div class="suggestion-item">${n}</div>`
+            ).join("");
+
+            box.style.display = suggestions.length ? "block" : "none";
+
+            box.querySelectorAll('.suggestion-item').forEach(item =>{
+                item.addEventListener('click', () =>{
+                    rechercheInput.value = item.innerText;
+                    rechercheTexte = item.innerText.toLowerCase();
+                    box.style.display = "none";
+                    AfficherInterface(dernieresDonneesRecues);
+                });
+            });
+        });
+
+        document.addEventListener('click', (e) =>{
+            if (!e.target.closest('.recherche-wrap')){
+                document.getElementById('suggestionsRecherche').style.display = "none";
+            }
         });
 
         function MontrerEmplacement (localisation){
