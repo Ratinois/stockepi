@@ -794,7 +794,7 @@
 
             const creerCarte = (f, estEnfant) => {
                 if (rechercheTexte != ""){
-                    if (!f.n.toLowerCase().includes(rechercheTexte)){
+                    if (!f.n.toLowerCase().startsWith(rechercheTexte)){
                         return null;
                     }
                 }
@@ -1429,7 +1429,7 @@ if (file){
             for (const id in dernieresDonneesRecues){
                 const nom = dernieresDonneesRecues[id].n;
 
-                if (nom.toLowerCase().includes(rechercheTexte)){
+                if (nom.toLowerCase().startsWith(rechercheTexte)){
                     if (!suggestions.includes(nom)){
                         suggestions.push(nom);
                     }
