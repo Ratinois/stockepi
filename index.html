@@ -256,7 +256,20 @@
 
         .nom-objet{ display: flex; align-items: center; width: 100%; overflow: hidden; }
         .nom-inner { display:flex; align-items:center; gap:6px; flex:1; min-width:0; overflow:hidden; }
-        .nom-texte { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; cursor:help; }
+        .nom-texte{
+    flex:1;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    min-width:0;
+    display:inline-flex;
+    align-items:center;
+}
+
+.nom-texte-click{
+    cursor:help;
+    display:inline-block;
+}
         .badge-zone{ flex-shrink: 0; }
 
         /* SOUS-ARTICLES */
@@ -353,14 +366,154 @@
             100% { opacity: 0; }
         }
 
+        .patchnote-btn{
+    background:none;
+    border:none;
+    padding:0;
+    margin-left:10px;
+    cursor:pointer;
+    font-size:16px;
+    opacity:0.75;
+    transition:0.15s;
+    vertical-align:middle;
+}
+
+.patchnote-btn:hover{
+    opacity:1;
+    transform:scale(1.08);
+}
+
+.patchnote-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+    z-index:6000;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    box-sizing:border-box;
+}
+
+.patchnote-box{
+    background:white;
+    width:100%;
+    max-width:500px;
+    max-height:80vh;
+    overflow-y:auto;
+    border-radius:16px;
+    padding:22px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.35);
+    animation:patchPop 0.15s ease-out;
+}
+
+.patchnote-title{
+    font-size:24px;
+    font-weight:bold;
+    margin-bottom:18px;
+    color:#0288d1;
+}
+
+.patch-entry{
+    padding:14px;
+    border-radius:10px;
+    background:#f8fbfd;
+    border:1px solid #d9ecf7;
+    margin-bottom:12px;
+}
+
+.patch-date{
+    font-size:13px;
+    color:#666;
+    margin-bottom:4px;
+}
+
+.patch-version{
+    font-size:17px;
+    font-weight:bold;
+    color:#222;
+    margin-bottom:6px;
+}
+
+.patch-content{
+    color:#444;
+    line-height:1.4;
+}
+
+.patch-close{
+    margin-top:12px;
+    width:100%;
+    border:none;
+    background:#0288d1;
+    color:white;
+    padding:12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.patch-close:hover{
+    background:#0277bd;
+}
+
+@keyframes patchPop{
+    from{
+        opacity:0;
+        transform:scale(0.95);
+    }
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+}
+
     </style>
 </head>
 <body>
 
-    <div class="onglets">
-        <button id="btnStock" class="onglet-active" onclick="ChangerOnglet('stock')">📦 Stock</button>
-        <button id="btnPlan" onclick="ChangerOnglet('plan')">🗺️ Plan</button>
+    
+
+<div class="onglets">
+    <button id="btnStock" class="onglet-active" onclick="ChangerOnglet('stock')">📦 Stock</button>
+    <button id="btnPlan" onclick="ChangerOnglet('plan')">🗺️ Plan</button>
+
+    
+
+<div id="patchOverlay" class="patchnote-overlay" onclick="FermerPatchNote(event)">
+    <div class="patchnote-box">
+
+        <div class="patchnote-title">Notes versions</div>
+
+        <div class="patch-entry">
+            <div class="patch-date">7 mai 2026</div>
+            <div class="patch-version">v1.2</div>
+            <div class="patch-content">
+                • Ajout glisser-déposer pour sous-articles<br>
+                • Possibilité d'attribuer une photo aux articles
+            </div>
+        </div>
+
+        <div class="patch-entry">
+            <div class="patch-date">23 février 2026</div>
+            <div class="patch-version">v1.1</div>
+            <div class="patch-content">
+                • Ajout des plans avec photos
+            </div>
+        </div>
+
+        <div class="patch-entry">
+            <div class="patch-date">12 février 2026</div>
+            <div class="patch-version">v1.0</div>
+            <div class="patch-content">
+                • Inventaire<br>
+            </div>
+        </div>
+
+        <button class="patch-close" onclick="FermerPatchNote()">Fermer</button>
+
     </div>
+</div>
+</div>
     
     <div id="section-plan" style="display:none; margin-top:10px;">
     
@@ -617,7 +770,9 @@
                     <div class="nom-objet">
                         <div class="nom-inner">
                             ${icone}
-                            <span class="nom-texte" onclick="ModifierSeuil('${f.id}', ${seuilVrai})">${f.n}</span>
+                            <span class="nom-texte">
+                            <span class="nom-texte-click" onclick="ModifierSeuil('${f.id}', ${seuilVrai})">${f.n}</span>
+                        </span>
                             ${badgeTotal}
                             ${texteAlerte}
                         </div>
@@ -1262,6 +1417,23 @@ if (file){
             lecteur.readAsText(fichier);
         }
 
+        function TogglePatchNote (){
+            const overlay = document.getElementById('patchOverlay');
+
+            if (overlay.style.display == "flex"){
+                overlay.style.display = "none";
+            }
+            else{
+                overlay.style.display = "flex";
+            }
+        }
+
+        function FermerPatchNote (event){
+            if (!event || event.target.id == "patchOverlay"){
+                document.getElementById('patchOverlay').style.display = "none";
+            }
+        }
+
 
     </script>
     
@@ -1270,6 +1442,7 @@ if (file){
         <label for="importFile" style="color: #bbb; font-size: 11px; cursor: pointer; text-decoration: none; margin: 0 10px;">📤 Restaurer
             <input type="file" id="importFile" accept=".json" onchange="RestaurerBDD(event)" style="display: none;">
         </label>
+        <span class="patchnote-btn" onclick="TogglePatchNote()">🗒️</span>
     </div>
 </body>
 </html>
