@@ -272,7 +272,7 @@
 }
         .badge-zone{ flex-shrink: 0; }
 
-        /* SOUS-ARTICLES */
+        /* SOUS-FOURNITURES */
         .carte-parent { border-left: 3px solid #0288d1 !important; }
         .badge-total { background:#0288d1; color:white; border-radius:4px; padding:2px 7px; font-size:12px; font-weight:bold; margin-left:6px; flex-shrink:0; }
         .carte-enfant { 
@@ -488,8 +488,8 @@
             <div class="patch-date">7 mai 2026</div>
             <div class="patch-version">v1.2</div>
             <div class="patch-content">
-                • Ajout glisser-déposer pour sous-articles<br>
-                • Possibilité d'attribuer une photo aux articles
+                • Ajout glisser-déposer pour sous-fournitures<br>
+                • Possibilité d'attribuer une photo aux fournitures
             </div>
         </div>
 
@@ -704,7 +704,7 @@
                 return a.n.localeCompare(b.n);
             });
 
-            // Séparer parents et enfants — parentId null/absent/string"null" = article racine
+            // Séparer parents et enfants — parentId null/absent/string"null" = fourniture racine
             const enfantsParParent = {};
             const parents = [];
             tous.forEach(f => {
@@ -759,7 +759,7 @@
                        </span>`;
 
                 const badgeTotal = estParent
-                    ? `<span class="badge-total" title="${nbEnfants} sous-article(s), total: ${totalEnfants}">${nbEnfants} 📂</span>`
+                    ? `<span class="badge-total" title="${nbEnfants} sous-fourniture(s), total: ${totalEnfants}">${nbEnfants} 📂</span>`
                     : "";
 
                 const btnDetacher = estEnfant
@@ -803,7 +803,7 @@
                     e.preventDefault();
                     div.classList.remove('drag-over-parent');
                     const draggedId = e.dataTransfer.getData('text/plain');
-                    if (draggedId === f.id) return; // même article
+                    if (draggedId === f.id) return; // même fourniture
                     if (estEnfant) return; // on ne droppe pas sur un enfant
                     // Vérif: on ne droppe pas un parent qui a déjà des enfants sur un autre parent
                     AttacherEnfant(draggedId, f.id);
@@ -923,18 +923,18 @@
             const enfant = dernieresDonneesRecues[enfantId];
             if (!enfant) return;
             if (enfant.parentId){
-                alert("Cet article est déjà un sous-article. Détachez-le d'abord.");
+                alert("Cette fourniture est déjà une sous-fourniture. Détachez-le d'abord.");
                 return;
             }
             
             // Vérifier que le parent n'est pas lui-même un enfant
             const parent = dernieresDonneesRecues[parentId];
             if (parent && parent.parentId){
-                alert("Impossible : vous ne pouvez pas créer de sous-article d'un sous-article.");
+                alert("Impossible : vous ne pouvez pas créer de sous-fourniture d'un sous-fourniture.");
                 return;
             }
 
-            // Nouvelle vérification : s'assurer que l'article glissé n'a pas déjà ses propres sous-articles
+            // Nouvelle vérification : s'assurer que la fourniture glissé n'a pas déjà ses propres sous-fournitures
             let aDesEnfants = false;
             for (const id in dernieresDonneesRecues){
                 if (dernieresDonneesRecues[id].parentId === enfantId){
@@ -944,7 +944,7 @@
             }
 
             if (aDesEnfants === true){
-                alert("Impossible : cet article contient déjà des sous-articles, il ne peut donc pas être déplacé dans un autre.");
+                alert("Impossible : cette fourniture contient déjà des sous-fournitures, il ne peut donc pas être déplacé dans un autre.");
                 return;
             }
 
