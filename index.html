@@ -1036,14 +1036,9 @@
             // Nouvelle vérification : s'assurer que la fourniture glissé n'a pas déjà ses propres sous-fournitures
             let aDesEnfants = false;
             for (const id in dernieresDonneesRecues){
-                const nom = dernieresDonneesRecues[id].n;
-                const nomLow = nom.toLowerCase();
-
-                if (nomLow.startsWith(rechercheTexte) || nomLow.includes(" " + rechercheTexte)){
-                    if (!suggestions.includes(nom)){
-                        suggestions.push(nom);
-                        nbResultats++;
-                    }
+                if (dernieresDonneesRecues[id].parentId === enfantId){
+                    aDesEnfants = true;
+                    break;
                 }
             }
 
@@ -1443,8 +1438,9 @@ if (file){
 
             for (const id in dernieresDonneesRecues){
                 const nom = dernieresDonneesRecues[id].n;
+                const nomLow = nom.toLowerCase();
 
-                if (nom.toLowerCase().startsWith(rechercheTexte)){
+                if (nomLow.startsWith(rechercheTexte) || nomLow.includes(" " + rechercheTexte)){
                     if (!suggestions.includes(nom)){
                         suggestions.push(nom);
                         nbResultats++;
