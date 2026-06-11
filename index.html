@@ -737,6 +737,7 @@
         }
         let monSecret = localStorage.getItem('secret_stock') || "";
         let rechercheTexte = "";
+        const parentsPliés = new Set();
 
         // 1. On définit la base de données de mots-clés une seule fois
         const CONFIG_CATEGORIES = {
@@ -920,6 +921,9 @@
                         if (carteEnfant) groupe.appendChild(carteEnfant);
                     });
                     conteneur.appendChild(groupe);
+                    if (parentsPliés.has(f.id)) {
+                        groupe.classList.add('collapsed');
+                    }
                 }
             });
 
@@ -1041,6 +1045,11 @@
         }
 
         function ToggleEnfants(parentId) {
+            if (parentsPliés.has(parentId)) {
+                parentsPliés.delete(parentId);
+            } else {
+                parentsPliés.add(parentId);
+            }
             const groupe = document.querySelector(`.groupe-enfants[data-parent-id="${parentId}"]`);
             if (groupe) groupe.classList.toggle('collapsed');
         }
