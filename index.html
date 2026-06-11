@@ -529,6 +529,18 @@
     border-radius:12px;
 }
 
+/* Collapse smooth des sous-fournitures */
+.groupe-enfants {
+    overflow: hidden;
+    max-height: 500px; /* valeur haute suffisante */
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 1;
+}
+.groupe-enfants.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
 </style>
 </head>
 <body>
@@ -834,9 +846,9 @@
                             <input type="file" class="upload-replace" data-id="${f.id}" accept="image/*" style="display:none;">
                        </span>`;
 
-                const badgeTotal = estParent
-                    ? `<span class="badge-total" title="${nbEnfants} sous-fourniture(s), total: ${totalEnfants}">${nbEnfants} 📂</span>`
-                    : "";
+                       const badgeTotal = estParent
+                        ? `<span class="badge-total" style="cursor:pointer;" title="${nbEnfants} sous-fourniture(s), total: ${totalEnfants}" onclick="ToggleEnfants('${f.id}')">${nbEnfants} 📂</span>`
+                        : "";
 
                 const btnDetacher = estEnfant
                     ? `<button class="btn-detacher" onclick="DetacherEnfant('${f.id}')" title="Détacher">✕</button>`
@@ -893,11 +905,18 @@
                 const carte = creerCarte(f, false);
                 if (!carte) return;
                 conteneur.appendChild(carte);
-                // Ajouter les enfants juste en dessous
-                (enfantsParParent[f.id] || []).forEach(enfant => {
-                    const carteEnfant = creerCarte(enfant, true);
-                    if (carteEnfant) conteneur.appendChild(carteEnfant);
-                });
+                // Ajouter les enfants dans un conteneur collapsible
+                const enfants = enfantsParParent[f.id] || [];
+                if (enfants.length > 0) {
+                    const groupe = document.createElement('div');
+                    groupe.className = "groupe-enfants";
+                    groupe.dataset.parentId = f.id;
+                    enfants.forEach(enfant => {
+                        const carteEnfant = creerCarte(enfant, true);
+                        if (carteEnfant) groupe.appendChild(carteEnfant);
+                    });
+                    conteneur.appendChild(groupe);
+                }
             });
 
             if (conteneur.innerHTML == ""){
@@ -1015,6 +1034,11 @@
                     } catch(err) { alert("Erreur image."); }
                 });
             });
+        }
+
+        function ToggleEnfants(parentId) {
+            const groupe = document.querySelector(`.groupe-enfants[data-parent-id="${parentId}"]`);
+            if (groupe) groupe.classList.toggle('collapsed');
         }
 
         function AttacherEnfant (enfantId, parentId){
