@@ -737,7 +737,7 @@
         }
         let monSecret = localStorage.getItem('secret_stock') || "";
         let rechercheTexte = "";
-        const parentsPliés = new Set();
+        const parentsPliés = new Set(JSON.parse(localStorage.getItem('parentsPliés') || '[]'));
 
         // 1. On définit la base de données de mots-clés une seule fois
         const CONFIG_CATEGORIES = {
@@ -1050,6 +1050,7 @@
             } else {
                 parentsPliés.add(parentId);
             }
+            localStorage.setItem('parentsPliés', JSON.stringify([...parentsPliés]));
             const groupe = document.querySelector(`.groupe-enfants[data-parent-id="${parentId}"]`);
             if (groupe) groupe.classList.toggle('collapsed');
         }
