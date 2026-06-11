@@ -561,7 +561,7 @@
         <div class="patch-entry">
             <div class="patch-date">11 juin 2026</div>
             <div class="patch-content">
-                • Possibilité dérouler sous-fournitures (bouton bleu)
+                • Possibilité dérouler sous-fournitures
             </div>
         </div>
 
@@ -864,7 +864,11 @@
                         <div class="nom-inner">
                             ${icone}
                             <span class="nom-texte">
-                            <span class="nom-texte-click" onclick="ModifierSeuil('${f.id}', ${seuilVrai})">${f.n}</span>
+                                <span class="nom-texte-click" 
+                                    style="cursor:${estParent ? 'pointer' : 'help'};"
+                                    onclick="${estParent ? `ToggleEnfants('${f.id}')` : `ModifierSeuil('${f.id}', ${seuilVrai})`}"
+                                    title="${estParent ? 'Déplier/replier' : 'Modifier le seuil'}"
+                                >${f.n}</span>
                         </span>
                             ${badgeTotal}
                             ${texteAlerte}
@@ -874,13 +878,17 @@
                         ${btnDetacher}
                     </div>
                     <div class="controles">
-                        <button class="ctrl-btn btn-5" onclick="ChangerQuantite('${f.id}', -5)">-5</button>
-                        <button class="ctrl-btn btn-1" onclick="ChangerQuantite('${f.id}', -1)">-1</button>
-                        <span class="badge">${f.q}</span>
-                        <button class="ctrl-btn btn-1" onclick="ChangerQuantite('${f.id}', 1)">+1</button>
-                        <button class="ctrl-btn btn-5" onclick="ChangerQuantite('${f.id}', 5)">+5</button>
-                        <button class="btn-poubelle" onclick="SupprimerFourniture('${f.id}', '${f.n}')">🗑️</button>
-                    </div>`;
+    ${estParent ? `
+        <span class="badge" style="background:#e1f5fe; color:#0288d1; min-width:40px;">${totalEnfants}</span>
+    ` : `
+        <button class="ctrl-btn btn-5" onclick="ChangerQuantite('${f.id}', -5)">-5</button>
+        <button class="ctrl-btn btn-1" onclick="ChangerQuantite('${f.id}', -1)">-1</button>
+        <span class="badge">${f.q}</span>
+        <button class="ctrl-btn btn-1" onclick="ChangerQuantite('${f.id}', 1)">+1</button>
+        <button class="ctrl-btn btn-5" onclick="ChangerQuantite('${f.id}', 5)">+5</button>
+    `}
+    <button class="btn-poubelle" onclick="SupprimerFourniture('${f.id}', '${f.n}')">🗑️</button>
+</div>`;
 
                 // Drag & drop events
                 div.addEventListener('dragstart', (e) => {
@@ -1217,10 +1225,18 @@ if (file){
             }
         }
 
-        function SupprimerFourniture (id, nom){
-            if (confirm("Supprimer '" + nom + "' ?")){
-                // On utilise update pour passer l'objet à null tout en validant le secret
-                db.ref('fournitures/' + id).remove();
+        function SupprimerFourniture(id, nom) {
+            if (confirm("Supprimer '" + nom + "' ?")) {
+                const updates = {};
+                updates[id] = null;
+                // Supprimer aussi les enfants éventuels
+                for (const enfantId in dernieresDonneesRecues) {
+                    if (dernieresDonneesRecues[enfantId].parentId === id) {
+                        updates[enfantId] = null;
+                    }
+                }
+                db.ref('fournitures').update(updates)
+                    .catch(() => alert("Accès refusé."));
             }
         }
 
